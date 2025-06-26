@@ -2,23 +2,75 @@
 title: Introduction
 ---
 
-## What is Channel3?
-Channel3 is the API for AI Shopping.
+## Welcome to Channel3! The API for AI Shopping 🛍️🤖
 
-Search our product catalog of nearly every product on the web — with natural language, images, or both. Recommend products. Earn revenue when your customers buy them.
+Hey there, developer! Welcome to Channel3, your new best friend for building amazing AI-powered shopping experiences. Whether you're creating a smart recommendation engine, a visual search tool, or an app that understands what your users *really* want, Channel3 has got you covered.
 
-## Setting up
+**What can you do with Channel3?**
+-   **Search a massive catalog:** Access nearly every product on the web.
+-   **Natural Language Search:** Let users search just like they talk (e.g., "warm winter coat for hiking").
+-   **Visual Search:** Allow users to find products using an image. Got a photo of cool sneakers? Find similar ones!
+-   **Multimodal Search:** Combine text *and* images for ultra-precise queries (e.g., "blue version of this dress" + image of the dress).
+-   **Recommend Products:** Intelligently suggest items your users will love.
+-   **Earn Revenue:** Monetize when your customers make purchases.
 
-Channel3 is super easy. 2 endpoints. 3 steps to set up.
+We aim to make integrating powerful e-commerce AI super simple. Let's get you started!
 
-<Card title = "Create an account" icon="1" href="https://trychannel3.com/sign-up">
-  To curate your catalog and track affiliate payouts.
-</Card>
+## Getting Started: Your First Steps
 
-<Card title = "Get an API key" icon="2" href="https://trychannel3.com/dashboard/api">
-  Your API Key will be used to authenticate your requests to the Channel3 MCP and ensure purchases get affiliated to your account.
-</Card>
+Setting up with Channel3 is a breeze. Here's how you can jump in:
 
-<Card title = "Start selling" icon="3">
-  Start selling in minutes with our API or MCP.
-</Card>
+<Steps>
+  <Step title="Create Your Free Account">
+    First things first, you'll need a Channel3 account. This is where you'll manage your API keys, track usage, and more.
+    <Card title="Sign Up for Channel3" icon="user-plus" href="https://trychannel3.com/sign-up">
+      It's quick and easy!
+    </Card>
+  </Step>
+  <Step title="Grab Your API Key">
+    Your API key is your secret pass to use the Channel3 API. Keep it safe!
+    <Card title="Go to API Keys in Dashboard" icon="key" href="https://trychannel3.com/dashboard/api">
+      You'll find your API key here after signing in.
+    </Card>
+    <Callout type="important">
+      **Treat your API key like a password!** Don't share it publicly or embed it directly in frontend code that users can see. For browser-based apps, consider a backend proxy. For server-side apps, use environment variables.
+    </Callout>
+  </Step>
+  <Step title="Choose Your SDK & Start Building!">
+    We offer official SDKs to make integration smooth and easy. Pick your language and dive in!
+    <CardGroup cols={2}>
+      <Card title="Python SDK Quickstart" icon="code" href="/quickstart">
+        Get started with our Python SDK. Perfect for backend applications, data science, and scripting.
+      </Card>
+      <Card title="TypeScript/JS SDK Quickstart" icon="code" href="/typescript-sdk">
+        Using Node.js or building for the browser? Our TypeScript/JavaScript SDK is for you.
+      </Card>
+    </CardGroup>
+    <Callout type="info">
+      **Just want to use the API directly?**
+      You can also make HTTP requests to our API endpoints. Check out the [API Reference](/api-reference/endpoint/search) for details on request/response formats. Our SDKs just make this process easier and more robust!
+    </Callout>
+  </Step>
+</Steps>
+
+## Core API Concepts
+
+While our SDKs handle a lot of the complexity, it's good to know the basics:
+
+-   **Search (`/search` endpoint):** This is your main workhorse. You can send:
+    -   `query`: A text string.
+    -   `image_url` or `base64_image`: For visual search.
+    -   `filters`: To narrow down results (e.g., by color, price).
+    -   `limit`: To control how many results you get.
+-   **Get Product Details (`/products/{product_id}` endpoint):** Once you have a product ID from a search, use this to get more comprehensive information about it.
+
+Our SDKs provide convenient methods that wrap these endpoints, along with typed models for requests and responses, making your development experience much smoother.
+
+<Callout type="tip" title="Explore the Docs!">
+This introduction is just the beginning. Make sure to check out:
+- The SDK quickstart guides for practical examples.
+- The API reference for in-depth details on each endpoint and data model.
+- Other sections in "Essentials" for tips on using Mintlify features in these docs.
+</Callout>
+
+We're thrilled to have you on board and can't wait to see the incredible shopping experiences you'll build with Channel3! If you have questions, don't hesitate to reach out to our support. Happy coding!

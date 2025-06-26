@@ -29,6 +29,7 @@
             "group": "API",
             "pages": [
               "quickstart",
+              "typescript-sdk",
               "api-reference/endpoint/search",
               "api-reference/endpoint/detail"
             ]

@@ -1,75 +1,418 @@
 ---
 title: 'Python SDK Quickstart'
-description: 'Examples of using the Channel3 API for product search and retrieval'
+description: 'Get started with the Channel3 Python SDK to search and retrieve product information.'
 ---
+
+Welcome to the Channel3 Python SDK! This guide will walk you through installing the SDK, setting it up, and using its features to supercharge your applications with powerful product search and discovery. We've designed this for developers of all levels, so let's dive in!
 
 ## Installation
 
-Install the Channel3 SDK:
+First things first, let's get the Channel3 SDK installed in your Python environment. You can use `pip` (Python's standard package installer) or `poetry` if you're using it for project management.
 
 <CodeGroup>
 ```bash pip
+# Using pip
 pip install channel3-sdk
 ```
 
 ```bash poetry
+# Using poetry
 poetry add channel3-sdk
 ```
 </CodeGroup>
 
-<Card title = "Get your API key" icon="key" href="https://trychannel3.com/dashboard/api">
-Follow this link to get your API key
+<Check>
+**Supported Python Versions:** The SDK works great with Python 3.8 and newer versions!
+</Check>
+
+## Getting Your API Key
+
+To talk to the Channel3 API, you'll need an API key. Think of it as your secret password that tells Channel3 who you are.
+
+<Card title="Get your API key" icon="key" href="https://trychannel3.com/dashboard/api">
+  If you don't have one yet, head over to your Channel3 dashboard to grab your API key.
 </Card>
 
-## Usage
+## Initialization: Your Gateway to Channel3
+
+The SDK is flexible! You can use a **synchronous** client (simpler for scripts and basic apps) or an **asynchronous** client (better for web servers and I/O-heavy apps that need to do many things at once).
+
+You can provide your API key in two ways:
+1.  **Directly in code:** Pass it when you create the client. Good for quick tests.
+2.  **Environment Variable:** Set `CHANNEL3_API_KEY` in your system. This is safer and more flexible, especially for production.
+
+<Callout type="info">
+  **What's an Environment Variable?**
+  It's like a global setting for your computer or application. By setting `CHANNEL3_API_KEY="your_actual_key_here"`, the SDK can automatically find and use it. This keeps your secret key out of your codebase!
+</Callout>
+
+### Synchronous Client (`Channel3Client`)
+
+Perfect for straightforward tasks.
 
 ```python
-from channel3_sdk.client import Channel3Client
-import asyncio
-
-# Initialize with explicit API key
-client = Channel3Client(api_key="your_api_key")
-
-# Or use environment variable
 import os
-os.environ["CHANNEL3_API_KEY"] = "your_api_key"
-client = Channel3Client()
+from channel3_sdk import Channel3Client
+
+# Option 1: Pass API key directly
+# Replace "your_api_key_here" with your actual key!
+client_sync = Channel3Client(api_key="your_api_key_here")
+print("Synchronous client initialized with direct API key.")
+
+# Option 2: Use an environment variable (Recommended!)
+# First, make sure you've set the CHANNEL3_API_KEY environment variable.
+# In your terminal (for the current session):
+# export CHANNEL3_API_KEY="your_api_key_here"
+# Or add it to your .bashrc, .zshrc, or .env file for persistence.
+
+# If CHANNEL3_API_KEY is set, this will work:
+# client_sync_env = Channel3Client()
+# print("Synchronous client initialized using environment variable (if set).")
 ```
 
-The SDK is fully async and returns typed models using [pydantic](https://docs.pydantic.dev/). All methods must be awaited.
+### Asynchronous Client (`AsyncChannel3Client`)
 
-### Product Search Example
+Use this if your application uses `asyncio` for non-blocking operations. This is common in modern web frameworks like FastAPI or Starlette.
 
 ```python
-from channel3_sdk.client import Channel3Client
-from channel3_sdk.models import Product
+import os
 import asyncio
+from channel3_sdk import AsyncChannel3Client
 
-async def main():
-    client = Channel3Client(api_key="your_api_key")
-    products: list[Product] = await client.search(query="blue denim jacket")
-    print(f"Found {len(products)} products")
+# Option 1: Pass API key directly
+client_async = AsyncChannel3Client(api_key="your_api_key_here")
+print("Asynchronous client initialized with direct API key.")
+
+# Option 2: Use an environment variable
+# async_client_env = AsyncChannel3Client()
+# print("Asynchronous client initialized using environment variable (if set).")
+
+async def example_async_usage():
+    # Let's try a quick search with our async client
+    products = await client_async.search(query="eco-friendly water bottle")
     if products:
-        print(f"Top result: {products[0].title} - ${products[0].price.price}")
+        print(f"Async search found: {products[0].title}")
+    else:
+        print("Async search didn't find anything for 'eco-friendly water bottle'.")
 
-asyncio.run(main())
+# To run an async function, you need an event loop:
+# asyncio.run(example_async_usage()) # Uncomment this line to run the async example
 ```
 
-### Product Detail Example
+<Callout type="warning" title="Working with Async Code">
+  Remember! When using `AsyncChannel3Client`:
+  - All its methods (like `search` or `get_product`) are `async` functions.
+  - You **must** call them using the `await` keyword.
+  - `await` can only be used inside an `async def` function.
+  - You need to run your main async function using something like `asyncio.run()`.
+</Callout>
+
+## Basic Usage: Searching and Getting Details
+
+Now for the fun part! Let's find some products.
+
+### Product Search (Text-based)
+
+This is the most common way to find products – just like using a search engine!
+
+**Synchronous Example:**
+```python
+from channel3_sdk import Channel3Client
+
+# Assuming client_sync is initialized as shown above
+# client_sync = Channel3Client(api_key="your_api_key_here")
+
+print("\n--- Synchronous Product Search ---")
+products_sync = client_sync.search(query="organic cotton t-shirt")
+
+if products_sync:
+    print(f"Found {len(products_sync)} organic cotton t-shirts (sync):")
+    for product in products_sync[:3]: # Print details for the first 3
+        print(f"  - Title: {product.title}")
+        print(f"    Brand: {product.brand_name}")
+        if product.offers: # It's good practice to check if offers exist
+            print(f"    Price: ${product.offers[0].price.price} {product.offers[0].price.currency}")
+        else:
+            print("    Price: Not available")
+else:
+    print("No organic cotton t-shirts found (sync).")
+```
+
+**Asynchronous Example:**
+```python
+import asyncio
+from channel3_sdk import AsyncChannel3Client
+
+# Assuming client_async is initialized
+# client_async = AsyncChannel3Client(api_key="your_api_key_here")
+
+async def search_products_async():
+    print("\n--- Asynchronous Product Search ---")
+    products_async = await client_async.search(query="vintage leather backpack")
+
+    if products_async:
+        print(f"Found {len(products_async)} vintage leather backpacks (async):")
+        for product in products_async[:3]: # Print details for the first 3
+            print(f"  - Title: {product.title}")
+            print(f"    Score: {product.score}") # How relevant is this result?
+            if product.offers:
+                print(f"    Merchant: {product.offers[0].merchant_name}")
+    else:
+        print("No vintage leather backpacks found (async).")
+
+# asyncio.run(search_products_async()) # Uncomment to run
+```
+
+### Get Product Details
+
+Once you have a `product_id` (usually from a search result), you can fetch more detailed information about that specific product.
+
+**Synchronous Example:**
+```python
+from channel3_sdk import Channel3Client, Channel3NotFoundError
+
+# client_sync = Channel3Client(api_key="your_api_key_here")
+# Let's assume products_sync from the previous example has some items
+# and we want to get details for the first one.
+# product_id_to_fetch = products_sync[0].id if products_sync else "prod_test_123"
+# For a predictable example, let's use a placeholder. Replace if you have a real ID.
+product_id_to_fetch = "prod_placeholder_123"
+
+print(f"\n--- Synchronous Get Product Detail (ID: {product_id_to_fetch}) ---")
+try:
+    product_detail_sync = client_sync.get_product(product_id_to_fetch)
+    print(f"Successfully fetched details for: {product_detail_sync.title}")
+    print(f"  Description: {product_detail_sync.description[:100]}...") # First 100 chars
+    print(f"  Materials: {product_detail_sync.materials}")
+    print(f"  Key Features: {product_detail_sync.key_features}")
+    if product_detail_sync.image_urls:
+        print(f"  First Image URL: {product_detail_sync.image_urls[0]}")
+except Channel3NotFoundError:
+    print(f"Product with ID '{product_id_to_fetch}' not found. This is expected if it's a placeholder.")
+except Exception as e:
+    print(f"An error occurred while fetching product {product_id_to_fetch}: {e}")
+```
+
+**Asynchronous Example:**
+```python
+import asyncio
+from channel3_sdk import AsyncChannel3Client, Channel3NotFoundError
+
+# client_async = AsyncChannel3Client(api_key="your_api_key_here")
+
+async def get_details_async(product_id: str):
+    print(f"\n--- Asynchronous Get Product Detail (ID: {product_id}) ---")
+    try:
+        product_detail_async = await client_async.get_product(product_id)
+        print(f"Details for: {product_detail_async.title}")
+        print(f"  Gender: {product_detail_async.gender}")
+        if product_detail_async.merchant_offerings:
+             print(f"  First Merchant: {product_detail_async.merchant_offerings[0].merchant_name} - Price: ${product_detail_async.merchant_offerings[0].price.price}")
+    except Channel3NotFoundError:
+        print(f"Product with ID '{product_id}' not found (async). This is expected if it's a placeholder.")
+    except Exception as e:
+        print(f"An error occurred (async) while fetching product {product_id}: {e}")
+
+# Example: Search then get details for the first result
+async def search_then_get_details_async():
+    print("\n--- Asynchronous Search then Get Detail ---")
+    # client_async = AsyncChannel3Client(api_key="your_api_key_here") # Ensure client is initialized
+    products = await client_async.search(query="sustainable backpack")
+    if products:
+        first_product_id = products[0].id
+        print(f"Found '{products[0].title}', now fetching its details (ID: {first_product_id})...")
+        await get_details_async(first_product_id)
+    else:
+        print("No sustainable backpacks found to get details for.")
+
+# asyncio.run(search_then_get_details_async()) # Uncomment to run
+```
+<Callout type="tip" title="What's a Product ID?">
+  The `product_id` is a unique string that identifies each product in Channel3's catalog. You'll usually get these IDs from the list of `Product` objects returned by a `search` call.
+</Callout>
+
+## Advanced Search: Go Beyond Text!
+
+Channel3 isn't just about text search. You can search with images too!
+
+### Visual Search (Image-based)
+
+Got an image of a product? Find similar items! You can use an image URL or upload an image by converting it to a base64 string.
+
+<CodeGroup>
+```python Image URL (Sync)
+# client_sync = Channel3Client(api_key="your_api_key_here")
+print("\n--- Visual Search with Image URL (Sync) ---")
+image_url = "https://pantrypoints.com/wp-content/uploads/2023/12/minimalist-white-sneakers-for-men.webp" # Example URL
+try:
+    products_from_url = client_sync.search(image_url=image_url)
+    if products_from_url:
+        print(f"Found {len(products_from_url)} products similar to the image at {image_url[:50]}...")
+        print(f"  Example: {products_from_url[0].title}")
+    else:
+        print("No products found similar to the image URL.")
+except Exception as e:
+    print(f"Error during visual search with URL: {e}")
+```
+```python Base64 Image (Sync)
+# client_sync = Channel3Client(api_key="your_api_key_here")
+print("\n--- Visual Search with Base64 Image (Sync) ---")
+# For this to work, create a dummy "my_image.jpg" or use a real one.
+# For simplicity, we'll skip actual file reading here, but show the structure.
+# import base64
+# try:
+#     with open("my_image.jpg", "rb") as image_file:
+#         base64_image_data = base64.b64encode(image_file.read()).decode()
+#     products_from_base64 = client_sync.search(base64_image=base64_image_data)
+#     if products_from_base64:
+#         print(f"Found {len(products_from_base64)} products similar to the local image.")
+# except FileNotFoundError:
+#     print("Skipping Base64 image search: 'my_image.jpg' not found. Create one to test this.")
+# except Exception as e:
+#     print(f"Error during visual search with Base64: {e}")
+print("Note: Base64 example is illustrative. Ensure you have an image file to test it fully.")
+```
+```python Image URL (Async)
+# client_async = AsyncChannel3Client(api_key="your_api_key_here")
+async def visual_search_url_async():
+    print("\n--- Visual Search with Image URL (Async) ---")
+    image_url = "https://www.ikea.com/us/en/images/products/strandmon-wing-chair-nordvalla-dark-gray__0990498_pe818970_s5.jpg" # Example URL
+    try:
+        products = await client_async.search(image_url=image_url)
+        if products:
+            print(f"Found {len(products)} products (async) similar to image at {image_url[:50]}...")
+            print(f"  Example: {products[0].title}")
+    except Exception as e:
+        print(f"Error during async visual search: {e}")
+# asyncio.run(visual_search_url_async()) # Uncomment to run
+```
+</CodeGroup>
+
+<Callout type="info">
+  **Base64 vs. URL for Images:**
+  - `image_url`: Best if the image is already online and publicly accessible.
+  - `base64_image`: Use this if you have the image file on your server or the user uploads it directly to your application. You'll read the file, encode it to base64, and send the string.
+</Callout>
+
+### Multimodal Search (Text + Image)
+
+The coolest feature! Combine a text query *and* an image to get super specific results. For example, "black shoes" + (image of a specific style of heel).
 
 ```python
-from channel3_sdk.client import Channel3Client
-from channel3_sdk.models import ProductDetail
-import asyncio
+# Synchronous client example
+# client_sync = Channel3Client(api_key="your_api_key_here")
+print("\n--- Multimodal Search (Text + Image) (Sync) ---")
+try:
+    products_multi = client_sync.search(
+        query="summer floral pattern", # Looking for this pattern
+        image_url="https://www.ikea.com/us/en/images/products/fabriss-cushion-cover-floral-pattern-blue-green__1180965_pe896635_s5.jpg" # On this type of item (cushion)
+    )
+    if products_multi:
+        print(f"Multimodal search found {len(products_multi)} items:")
+        for p in products_multi[:2]: print(f"  - {p.title}")
+    else:
+        print("Multimodal search found no items.")
+except Exception as e:
+    print(f"Error during multimodal search: {e}")
 
-async def main():
-    client = Channel3Client(api_key="your_api_key")
-    detail: ProductDetail = await client.get_product("prod_123456")
-    print(f"Title: {detail.title}")
-    print(f"Price: ${detail.price.price}")
-    print(f"Description: {detail.description}")
-    for variant in detail.variants:
-        print(f"Variant: {variant.title} - {variant.price.price}")
-
-asyncio.run(main())
+# Asynchronous client would be very similar, just with await:
+# products_multi_async = await client_async.search(...)
 ```
+
+### Search with Filters
+
+Narrow down your search results by specifying criteria like colors, materials, price range, or how many results you want (`limit`).
+
+```python
+from channel3_sdk import SearchFilters # Don't forget this import!
+# client_sync = Channel3Client(api_key="your_api_key_here")
+
+print("\n--- Search with Filters (Sync) ---")
+# Let's find up to 5 men's running shoes, in blue or black, under $150
+filters_config = SearchFilters(
+    colors=["blue", "black"],
+    # materials=["mesh"], # You can add material if needed
+    max_price=150.0
+    # min_price=50.0 # Optionally add a minimum price
+)
+
+try:
+    filtered_shoes = client_sync.search(
+        query="men's running shoes", # Main query
+        filters=filters_config,      # Our filter object
+        limit=5                      # Max 5 results
+    )
+
+    if filtered_shoes:
+        print(f"Found {len(filtered_shoes)} filtered running shoes:")
+        for shoe in filtered_shoes:
+            price_info = "N/A"
+            if shoe.offers and shoe.offers[0].price:
+                price_info = f"${shoe.offers[0].price.price} {shoe.offers[0].price.currency}"
+            print(f"  - {shoe.title} (Price: {price_info})")
+    else:
+        print("No running shoes found matching the filters.")
+except Exception as e:
+    print(f"Error during filtered search: {e}")
+```
+<Check>
+  **Typed for Your Convenience!**
+  The SDK uses [Pydantic](https://docs.pydantic.dev/) models like `Product`, `ProductDetail`, and `SearchFilters`. This means your IDE can help you with autocompletion, and Pydantic automatically validates data from the API. It's a big help for writing correct and maintainable code!
+</Check>
+
+## Error Handling: Be Prepared!
+
+Network issues happen, API keys can be wrong, or sometimes servers have a hiccup. Good applications handle these gracefully. The Channel3 SDK provides specific exception types for this.
+
+```python
+from channel3_sdk import (
+    Channel3Client, # Or AsyncChannel3Client for async examples
+    Channel3AuthenticationError,
+    Channel3ValidationError,
+    Channel3NotFoundError,
+    Channel3ServerError,
+    Channel3ConnectionError
+)
+
+# client = Channel3Client(api_key="your_api_key_here") # For sync
+# client = Channel3Client(api_key="WRONG_API_KEY") # To test AuthenticationError
+# For async, initialize AsyncChannel3Client and use 'await client.search(...)' in an async function.
+
+print("\n--- Error Handling Example ---")
+try:
+    # Let's try a call that might cause an error
+    # 1. Test with a potentially bad product ID for NotFoundError:
+    # product = client.get_product("id_that_does_not_exist_12345")
+
+    # 2. Test a normal search (uncomment the client init above with a real/wrong key)
+    products = client_sync.search(query="very specific query that might return few results")
+    print(f"Search successful, found {len(products)} products.")
+
+except Channel3AuthenticationError:
+    print("Oops! Authentication Error: Your API key seems to be invalid or missing.")
+    print("Please double-check it. You can get your key from the Channel3 Dashboard.")
+    print("If using an environment variable, ensure CHANNEL3_API_KEY is correctly set.")
+except Channel3ValidationError as e:
+    # This happens if your request is malformed (e.g., wrong filter format)
+    print(f"Oops! Validation Error: The data you sent was not quite right.")
+    print(f"Details from API: {e.message}")
+    # The e.response_data attribute might have more clues from the server:
+    # print(f"Server response data: {e.response_data}")
+except Channel3NotFoundError:
+    print("Oops! Not Found Error: The specific product or resource you asked for doesn't exist.")
+except Channel3ServerError:
+    print("Uh oh! Server Error: It seems there's an issue on Channel3's side. Please try again in a little bit.")
+except Channel3ConnectionError:
+    print("Network Glitch! Connection Error: We couldn't reach the Channel3 API. Please check your internet connection.")
+except Exception as e: # Catch-all for any other unexpected Python errors
+    print(f"An unexpected error occurred: {type(e).__name__} - {e}")
+
+```
+
+<Callout type="best_practice" title="Robust Code = Happy Users">
+  Always wrap your API calls in `try...except` blocks in production applications. This prevents your app from crashing and allows you to inform users nicely if something goes wrong. Logging errors is also a great idea for debugging!
+</Callout>
+
+And that's a wrap for the Python SDK Quickstart! You're now equipped to explore the vast world of products with Channel3. For even more details on specific models or client methods, you can always refer to the SDK's source code or look out for a dedicated API reference section.
+
+Happy coding, and we can't wait to see what you build!
