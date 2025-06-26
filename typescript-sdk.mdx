@@ -1,0 +1,409 @@
+---
+title: 'TypeScript/JavaScript SDK Quickstart'
+description: 'Get started with the Channel3 TypeScript/JavaScript SDK for powerful product search and discovery.'
+---
+
+Welcome to the Channel3 TypeScript/JavaScript SDK! This guide will help you install, set up, and use the SDK to integrate Channel3's product search capabilities into your web and Node.js applications. Let's get you up and running!
+
+## Installation
+
+You can install the Channel3 SDK using your favorite JavaScript package manager: npm, Yarn, or pnpm.
+
+<CodeGroup>
+```bash npm
+npm install channel3-sdk
+```
+
+```bash yarn
+yarn add channel3-sdk
+```
+
+```bash pnpm
+pnpm add channel3-sdk
+```
+</CodeGroup>
+
+<Check>
+**Environment Support:**
+- Node.js: Version 16 or higher.
+- Browsers: Modern browsers supporting ES2018+, Fetch API, and AbortController. (Polyfills might be needed for older browsers).
+</Check>
+
+## Getting Your API Key
+
+Just like with our other SDKs, you'll need an API key to authenticate your requests to the Channel3 API.
+
+<Card title="Get your API key" icon="key" href="https://trychannel3.com/dashboard/api">
+  Grab your API key from your Channel3 dashboard if you haven't already.
+</Card>
+
+## Initialization
+
+The `Channel3Client` is your main tool for interacting with the API. You can configure it with your API key and other optional settings.
+
+### API Key Configuration
+
+You have two main ways to provide your API key:
+
+1.  **Directly in Configuration:** Pass it in the `apiKey` field when creating the client.
+2.  **Environment Variable:** If `CHANNEL3_API_KEY` is set in your Node.js environment (`process.env.CHANNEL3_API_KEY`), the client can automatically pick it up.
+
+<Callout type="info">
+  **Using Environment Variables in Node.js:**
+  Set `CHANNEL3_API_KEY="your_actual_key_here"` in your terminal or a `.env` file (using a library like `dotenv`). This is great for security and different environments (dev, prod).
+  In browsers, directly passing the API key is more common, but ensure your key is not overly exposed (consider backend proxies for sensitive operations).
+</Callout>
+
+```typescript
+import { Channel3Client } from 'channel3-sdk';
+
+// Option 1: Initialize with explicit API key (common for browsers or specific setups)
+const clientWithApiKey = new Channel3Client({
+  apiKey: "your_api_key_here"
+});
+console.log("Client initialized with direct API key.");
+
+// Option 2: Initialize using environment variable (common for Node.js)
+// Ensure CHANNEL3_API_KEY is set in your Node.js environment.
+// const clientWithEnvVar = new Channel3Client({});
+// if (process.env.CHANNEL3_API_KEY) {
+//   console.log("Client initialized using CHANNEL3_API_KEY environment variable.");
+// } else {
+//   console.log("CHANNEL3_API_KEY environment variable not set; direct API key would be needed.");
+// }
+
+// For most examples below, we'll assume 'client' is an initialized Channel3Client.
+const client = clientWithApiKey; // Or clientWithEnvVar if in Node.js with env var set
+```
+
+### Custom Configuration
+
+You can also customize the base URL (if needed) and request timeout.
+
+```typescript
+import { Channel3Client } from 'channel3-sdk';
+
+const customClient = new Channel3Client({
+  apiKey: "your_api_key_here",
+  baseUrl: "https://api.trychannel3.com/v0", // Default, but can be changed
+  timeout: 60000, // Timeout in milliseconds (e.g., 60 seconds)
+});
+console.log("Client initialized with custom configuration.");
+```
+
+<Callout type="warning" title="Async Operations">
+  All methods on the `Channel3Client` (like `search` and `getProduct`) are asynchronous and return Promises. You'll need to use `async/await` or `.then()/.catch()` to work with the results.
+</Callout>
+
+## Basic Usage
+
+Let's explore how to search for products and fetch their details.
+
+### Product Search (Text-based)
+
+The most common way to find products is by providing a text query.
+
+**ES Modules / TypeScript Example:**
+```typescript
+import { Channel3Client, Product } from 'channel3-sdk';
+
+// Assume client is initialized as shown in the "Initialization" section
+// const client = new Channel3Client({ apiKey: "your_api_key_here" });
+
+async function findProducts() {
+  console.log("\n--- Text Product Search ---");
+  try {
+    const products: Product[] = await client.search({ query: "minimalist desk lamp" });
+
+    if (products.length > 0) {
+      console.log(`Found ${products.length} desk lamps:`);
+      products.slice(0, 3).forEach(product => { // Show first 3
+        console.log(`  - Title: ${product.title}`);
+        console.log(`    Brand: ${product.brand_name}`);
+        if (product.offers && product.offers.length > 0) {
+          console.log(`    Price: $${product.offers[0].price.price} ${product.offers[0].price.currency}`);
+        } else {
+          console.log("    Price: Not available");
+        }
+      });
+    } else {
+      console.log("No desk lamps found matching your query.");
+    }
+  } catch (error) {
+    console.error("Error during product search:", error);
+  }
+}
+
+// findProducts(); // Uncomment to run this example
+```
+
+**CommonJS / Node.js Example:**
+```javascript
+// const { Channel3Client } = require('channel3-sdk'); // If using require
+
+// Assume client is initialized
+// const client = new Channel3Client({ apiKey: "your_api_key_here" });
+
+async function findProductsCJS() {
+  console.log("\n--- Text Product Search (CommonJS) ---");
+  try {
+    const products = await client.search({ query: "wireless bluetooth headphones" });
+    if (products.length > 0) {
+      console.log(`Found ${products.length} headphones:`);
+      products.slice(0,2).forEach(product => {
+          console.log(`  - ${product.title} (Score: ${product.score})`);
+      });
+    } else {
+      console.log("No headphones found.");
+    }
+  } catch (error) {
+    console.error("Error searching (CommonJS):", error);
+  }
+}
+
+// findProductsCJS(); // Uncomment to run
+```
+
+### Get Product Details
+
+If you have a `productId` (typically from a search result), you can fetch detailed information.
+
+```typescript
+import { Channel3Client, ProductDetail, Channel3NotFoundError } from 'channel3-sdk';
+// const client = new Channel3Client({ apiKey: "your_api_key_here" });
+
+async function getProductInfo(productId: string) {
+  console.log(`\n--- Get Product Detail (ID: ${productId}) ---`);
+  try {
+    const productDetail: ProductDetail = await client.getProduct(productId);
+    console.log(`Successfully fetched details for: ${productDetail.title}`);
+    console.log(`  Description: ${productDetail.description.substring(0, 100)}...`);
+    console.log(`  Materials: ${productDetail.materials?.join(', ') || 'N/A'}`);
+    console.log(`  Key Features: ${productDetail.key_features.join(', ')}`);
+    if (productDetail.image_urls && productDetail.image_urls.length > 0) {
+      console.log(`  Primary Image: ${productDetail.image_urls[0]}`);
+    }
+  } catch (error) {
+    if (error instanceof Channel3NotFoundError) {
+      console.warn(`Product with ID '${productId}' not found. This is expected if it's a test ID.`);
+    } else {
+      console.error(`Error fetching product ${productId}:`, error);
+    }
+  }
+}
+
+// Example: Search first, then get details of the first result
+async function searchAndGetDetails() {
+  console.log("\n--- Search then Get Details ---");
+  try {
+    const products = await client.search({ query: "men's leather wallet" });
+    if (products.length > 0 && products[0].id) {
+      console.log(`Found '${products[0].title}', now fetching details...`);
+      await getProductInfo(products[0].id);
+    } else {
+      console.log("No wallets found to get details for.");
+    }
+  } catch (error) {
+    console.error("Error in searchAndGetDetails:", error);
+  }
+}
+
+// searchAndGetDetails(); // Uncomment to run
+```
+<Callout type="tip" title="Product ID">
+  The `productId` is a unique string identifier for each product. You'll get this from the `id` field of `Product` objects returned by the `search` method.
+</Callout>
+
+## Advanced Search
+
+Go beyond simple text queries with visual and multimodal search, and refine results with filters.
+
+### Visual Search (Image-based)
+
+Search using an image URL or a base64 encoded image string.
+
+<CodeGroup>
+```typescript Image URL
+// const client = new Channel3Client({ apiKey: "your_api_key_here" });
+async function searchByImageUrl() {
+  console.log("\n--- Visual Search with Image URL ---");
+  const imageUrl = "https://example.com/path/to/your/image.jpg"; // Replace with a real image URL
+  try {
+    const products = await client.search({ imageUrl: imageUrl });
+    if (products.length > 0) {
+      console.log(`Found ${products.length} products similar to the image:`);
+      console.log(`  Top result: ${products[0].title}`);
+    } else {
+      console.log("No products found similar to the provided image URL.");
+    }
+  } catch (error) {
+    console.error("Error in visual search by URL:", error);
+  }
+}
+// searchByImageUrl();
+```
+```typescript Base64 Image (Node.js)
+// This example is best suited for Node.js where you can read files.
+// const fs = require('fs'); // For CommonJS
+// import * as fs from 'fs'; // For ES Modules with "esModuleInterop": true
+
+async function searchByBase64Image() {
+  console.log("\n--- Visual Search with Base64 Image (Node.js) ---");
+  try {
+    // const imageBuffer = fs.readFileSync('path/to/your/local/image.jpg');
+    // const base64Image = imageBuffer.toString('base64');
+    // const products = await client.search({ base64Image: base64Image });
+    // if (products.length > 0) {
+    //   console.log(`Found ${products.length} products similar to the local image.`);
+    // } else {
+    //   console.log("No products found for the Base64 image.");
+    // }
+    console.log("Base64 image search example (Node.js). Uncomment and provide a file path to test.");
+  } catch (error) {
+    // if (error.code === 'ENOENT') console.error("Image file not found for Base64 search.");
+    // else console.error("Error in visual search by Base64:", error);
+    console.error("Error in visual search by Base64 (illustrative):", error);
+  }
+}
+// searchByBase64Image();
+```
+</CodeGroup>
+
+<Callout type="info">
+  **Image URL vs. Base64:**
+  - `imageUrl`: Ideal if the image is hosted online.
+  - `base64Image`: Use when you have the image data directly (e.g., user upload, file system in Node.js).
+</Callout>
+
+### Multimodal Search (Text + Image)
+
+Combine text and image inputs for highly specific searches.
+
+```typescript
+// const client = new Channel3Client({ apiKey: "your_api_key_here" });
+async function multimodalSearch() {
+  console.log("\n--- Multimodal Search (Text + Image) ---");
+  try {
+    const products = await client.search({
+      query: "dark blue formal shoes", // Text part
+      imageUrl: "https://example.com/shoe_style.jpg" // Image part (style reference)
+    });
+    if (products.length > 0) {
+      console.log(`Multimodal search found ${products.length} items:`);
+      products.slice(0,2).forEach(p => console.log(`  - ${p.title}`));
+    } else {
+      console.log("No items found with multimodal search.");
+    }
+  } catch (error) {
+    console.error("Error in multimodal search:", error);
+  }
+}
+// multimodalSearch();
+```
+
+### Search with Filters
+
+Refine searches by color, material, price, and limit the number of results.
+
+```typescript
+import { Channel3Client, SearchFilters } from 'channel3-sdk';
+// const client = new Channel3Client({ apiKey: "your_api_key_here" });
+
+async function searchWithFilters() {
+  console.log("\n--- Search with Filters ---");
+  const filters: SearchFilters = {
+    colors: ["red", "burgundy"],
+    materials: ["silk"],
+    max_price: 250.0,
+  };
+  try {
+    const products = await client.search({
+      query: "evening dress",
+      filters: filters,
+      limit: 5 // Get a maximum of 5 results
+    });
+    if (products.length > 0) {
+      console.log(`Found ${products.length} filtered evening dresses:`);
+      products.forEach(dress => {
+        const price = dress.offers?.[0]?.price?.price || 'N/A';
+        console.log(`  - ${dress.title} (Price: $${price})`);
+      });
+    } else {
+      console.log("No dresses found matching the filters.");
+    }
+  } catch (error) {
+    console.error("Error in filtered search:", error);
+  }
+}
+// searchWithFilters();
+```
+<Check>
+  **Strongly Typed:** The SDK is written in TypeScript, providing type definitions for all options and responses (like `Product`, `ProductDetail`, `SearchOptions`). This means better autocompletion in your IDE and helps catch errors at compile-time!
+</Check>
+
+## Error Handling
+
+The SDK throws custom error classes for different API issues, allowing you to handle them gracefully.
+
+```typescript
+import {
+  Channel3Client,
+  Channel3AuthenticationError,
+  Channel3ValidationError,
+  Channel3NotFoundError,
+  Channel3ServerError,
+  Channel3ConnectionError
+} from 'channel3-sdk';
+
+// const client = new Channel3Client({ apiKey: "your_api_key_here" });
+// To test errors, you might use an invalid API key or try to fetch a non-existent product.
+// const clientForErrorTest = new Channel3Client({ apiKey: "INVALID_KEY" });
+
+async function demonstrateErrorHandling() {
+  console.log("\n--- Error Handling Demonstration ---");
+  try {
+    // Example: Trying to fetch a product that likely doesn't exist
+    // Or use clientForErrorTest to trigger an AuthenticationError
+    const products = await client.search({ query: "some_very_specific_query_for_testing" });
+    // const product = await client.getProduct("non_existent_product_id_xyz");
+    console.log("API call was successful (or found no results).");
+
+  } catch (error: any) {
+    if (error instanceof Channel3AuthenticationError) {
+      console.error("Authentication Error:", error.message);
+      console.error("Please check your API key. Is it correct and active?");
+    } else if (error instanceof Channel3ValidationError) {
+      console.error("Validation Error:", error.message);
+      console.error("The data sent in the request was invalid. Details:", error.responseData);
+    } else if (error instanceof Channel3NotFoundError) {
+      console.error("Not Found Error:", error.message);
+      console.error("The requested resource (e.g., a product) could not be found.");
+    } else if (error instanceof Channel3ServerError) {
+      console.error("Server Error:", error.message);
+      console.error("An issue occurred on the Channel3 API side. Please try again later.");
+    } else if (error instanceof Channel3ConnectionError) {
+      console.error("Connection Error:", error.message);
+      console.error("Failed to connect to the Channel3 API. Check your network connection.");
+    } else {
+      console.error("An unexpected error occurred:", error.message || error);
+    }
+  }
+}
+
+// demonstrateErrorHandling(); // Uncomment to run
+```
+
+<Callout type="best_practice" title="Build Resilient Apps!">
+  Always wrap API calls in `try...catch` blocks in your production code. This helps prevent crashes and allows you to provide helpful feedback to your users if something goes wrong.
+</Callout>
+
+## Browser Support
+
+The SDK is designed to work in modern browsers that support:
+- ES2018+ JavaScript features
+- The `fetch` API
+- `AbortController` (for request timeouts)
+
+If you need to support older browsers, you might need to include polyfills for `fetch` and `AbortController`.
+
+You're now all set to use the Channel3 TypeScript/JavaScript SDK! Explore the different search methods and build amazing product-centric experiences. Happy coding!
