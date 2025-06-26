@@ -7,13 +7,11 @@
   "paths": {
     "/v0/search": {
       "post": {
-        "summary": "Get Sample Purchase Intent",
-        "operationId": "get_sample_purchase_intent_v0_search_post",
-        "security": [
-          {
-            "ApiTokenAuth": []
-          }
+        "tags": [
+          "channel3-api"
         ],
+        "summary": "Search",
+        "operationId": "search_v0_search_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -34,34 +32,31 @@
                     "$ref": "#/components/schemas/Product"
                   },
                   "type": "array",
-                  "title": "Response Get Sample Purchase Intent V0 Search Post"
+                  "title": "Response Search V0 Search Post"
                 }
               }
             }
           },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication"
+          },
           "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
+            "description": "Validation Error"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/v0/products/{product_id}": {
       "get": {
+        "tags": [
+          "channel3-api"
+        ],
         "summary": "Get Product Detail",
         "description": "Get detailed information about a specific product by its ID.\n\nArgs:\n    product_id: The unique identifier of the product\n\nReturns:\n    ProductGraphProduct: The complete product information\n\nRaises:\n    HTTPException: 404 if product not found",
         "operationId": "get_product_detail_v0_products__product_id__get",
-        "security": [
-          {
-            "ApiTokenAuth": []
-          }
-        ],
         "parameters": [
           {
             "name": "product_id",
@@ -84,13 +79,31 @@
               }
             }
           },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication"
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "404": {
+            "description": "Product not found"
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
+                "schema": {}
               }
             }
           }
@@ -99,15 +112,71 @@
     }
   },
   "components": {
-    "securitySchemes": {
-      "ApiTokenAuth": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "x-api-token",
-        "description": "API token for authentication and affiliate tracking"
-      }
-    },
     "schemas": {
+      "AvailabilityStatus": {
+        "type": "string",
+        "enum": [
+          "InStock",
+          "OutOfStock",
+          "PreOrder",
+          "LimitedAvailability",
+          "BackOrder",
+          "Discontinued",
+          "SoldOut",
+          "Unknown"
+        ],
+        "title": "AvailabilityStatus"
+      },
+      "FamilyMember": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "image_url"
+        ],
+        "title": "FamilyMember"
+      },
+      "MerchantOffering": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "default": "https://buy.trychannel3.com"
+          },
+          "merchant_name": {
+            "type": "string",
+            "title": "Merchant Name"
+          },
+          "price": {
+            "$ref": "#/components/schemas/Price"
+          },
+          "availability": {
+            "$ref": "#/components/schemas/AvailabilityStatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "merchant_name",
+          "price",
+          "availability"
+        ],
+        "title": "MerchantOffering",
+        "description": "A merchant offering a product\nDiffers from MerchantProductOffering in that it has no commission percentage -- this is external"
+      },
       "Price": {
         "properties": {
           "price": {
@@ -116,7 +185,14 @@
             "description": "The current price of the product, including any discounts."
           },
           "compare_at_price": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Compare At Price",
             "description": "The original price of the product before any discounts."
           },
@@ -129,7 +205,6 @@
         "type": "object",
         "required": [
           "price",
-          "compare_at_price",
           "currency"
         ],
         "title": "Price"
@@ -140,20 +215,9 @@
             "type": "string",
             "title": "Id"
           },
-          "url": {
-            "type": "string",
-            "title": "Url"
-          },
           "score": {
             "type": "number",
             "title": "Score"
-          },
-          "price": {
-            "$ref": "#/components/schemas/Price"
-          },
-          "brand_id": {
-            "type": "string",
-            "title": "Brand Id"
           },
           "brand_name": {
             "type": "string",
@@ -171,36 +235,37 @@
             "type": "string",
             "title": "Image Url"
           },
-          "variants": {
+          "offers": {
             "items": {
-              "$ref": "#/components/schemas/Variant"
+              "$ref": "#/components/schemas/MerchantOffering"
             },
             "type": "array",
-            "title": "Variants"
+            "title": "Offers"
+          },
+          "family": {
+            "items": {
+              "$ref": "#/components/schemas/FamilyMember"
+            },
+            "type": "array",
+            "title": "Family",
+            "default": []
           }
         },
         "type": "object",
         "required": [
           "id",
-          "url",
           "score",
-          "price",
-          "brand_id",
           "brand_name",
           "title",
           "description",
           "image_url",
-          "variants"
+          "offers"
         ],
         "title": "Product",
         "description": "A product"
       },
       "ProductDetail": {
         "properties": {
-          "url": {
-            "type": "string",
-            "title": "Url"
-          },
           "brand_id": {
             "type": "string",
             "title": "Brand Id"
@@ -224,15 +289,12 @@
             "type": "array",
             "title": "Image Urls"
           },
-          "variants": {
+          "merchant_offerings": {
             "items": {
-              "$ref": "#/components/schemas/Variant"
+              "$ref": "#/components/schemas/MerchantOffering"
             },
             "type": "array",
-            "title": "Variants"
-          },
-          "price": {
-            "$ref": "#/components/schemas/Price"
+            "title": "Merchant Offerings"
           },
           "gender": {
             "type": "string",
@@ -265,18 +327,24 @@
             "type": "array",
             "title": "Key Features",
             "default": []
+          },
+          "family_members": {
+            "items": {
+              "$ref": "#/components/schemas/FamilyMember"
+            },
+            "type": "array",
+            "title": "Family Members",
+            "default": []
           }
         },
         "type": "object",
         "required": [
-          "url",
           "brand_id",
           "brand_name",
           "title",
           "description",
           "image_urls",
-          "variants",
-          "price"
+          "merchant_offerings"
         ],
         "title": "ProductDetail",
         "description": "A product with detailed information"
@@ -397,83 +465,6 @@
         },
         "type": "object",
         "title": "SearchRequest"
-      },
-      "ValidationError": {
-        "properties": {
-          "loc": {
-            "items": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "integer"
-                }
-              ]
-            },
-            "type": "array",
-            "title": "Location"
-          },
-          "msg": {
-            "type": "string",
-            "title": "Message"
-          },
-          "type": {
-            "type": "string",
-            "title": "Error Type"
-          }
-        },
-        "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
-        "title": "ValidationError"
-      },
-      "Variant": {
-        "properties": {
-          "url": {
-            "type": "string",
-            "title": "Url"
-          },
-          "title": {
-            "type": "string",
-            "title": "Title"
-          },
-          "merchant_id": {
-            "type": "string",
-            "title": "Merchant Id"
-          },
-          "merchant_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Merchant Name"
-          },
-          "price": {
-            "$ref": "#/components/schemas/Price"
-          },
-          "is_available": {
-            "type": "boolean",
-            "title": "Is Available"
-          }
-        },
-        "type": "object",
-        "required": [
-          "url",
-          "title",
-          "merchant_id",
-          "price",
-          "is_available"
-        ],
-        "title": "Variant",
-        "description": "A variant of a product, like a size\nSold by one merchant\nThese are created at query time, never stored"
       }
     }
   }
