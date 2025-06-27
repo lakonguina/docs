@@ -44,8 +44,19 @@
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 },
-                "example": {
-                  "detail": "Invalid or missing authentication token"
+                "examples": {
+                  "missing_key": {
+                    "summary": "Missing API Key",
+                    "value": {
+                      "detail": "Unauthorized. Missing authentication key. Make sure to attach an x-api-key with your request. Need help? Reach out to founders@trychannel3.com."
+                    }
+                  },
+                  "invalid_key": {
+                    "summary": "Invalid API Key",
+                    "value": {
+                      "detail": "API key was provided but is invalid. Need help? Reach out to founders@trychannel3.com."
+                    }
+                  }
                 }
               }
             }
@@ -55,7 +66,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 },
                 "example": {
                   "detail": [
@@ -80,12 +91,17 @@
                   "$ref": "#/components/schemas/ErrorResponse"
                 },
                 "example": {
-                  "detail": "Internal server error occurred"
+                  "detail": "Internal Server Error"
                 }
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
       }
     },
     "/v0/products/{product_id}": {
@@ -96,6 +112,11 @@
         "summary": "Get Product Detail",
         "description": "Get detailed information about a specific product by its ID.\n\nArgs:\n    product_id: The unique identifier of the product\n\nReturns:\n    ProductGraphProduct: The complete product information\n\nRaises:\n    HTTPException: 404 if product not found",
         "operationId": "get_product_detail_v0_products__product_id__get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
         "parameters": [
           {
             "name": "product_id",
@@ -122,24 +143,22 @@
             "description": "Unauthorized - Invalid or missing authentication",
             "content": {
               "application/json": {
+                "examples": {
+                  "missing_key": {
+                    "summary": "Missing API Key",
+                    "value": {
+                      "detail": "Unauthorized. Missing authentication key. Make sure to attach an x-api-key with your request. Need help? Reach out to founders@trychannel3.com."
+                    }
+                  },
+                  "invalid_key": {
+                    "summary": "Invalid API Key",
+                    "value": {
+                      "detail": "API key was provided but is invalid. Need help? Reach out to founders@trychannel3.com."
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "detail": "Invalid or missing authentication token"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Product not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "detail": "Product with ID 'xyz123' not found"
                 }
               }
             }
@@ -148,20 +167,20 @@
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                },
                 "example": {
                   "detail": [
                     {
                       "loc": [
-                        "path",
-                        "product_id"
+                        "body",
+                        "query"
                       ],
-                      "msg": "string does not match regex",
-                      "type": "value_error.str.regex"
+                      "msg": "field required",
+                      "type": "value_error.missing"
                     }
                   ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -170,11 +189,24 @@
             "description": "Internal Server Error",
             "content": {
               "application/json": {
+                "example": {
+                  "detail": "Internal Server Error"
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
-                },
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found",
+            "content": {
+              "application/json": {
                 "example": {
-                  "detail": "Internal server error occurred"
+                  "detail": "Product with ID 'xyz123' not found"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -214,6 +246,18 @@
           "Unknown"
         ],
         "title": "AvailabilityStatus"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "detail": {
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "title": "ErrorResponse"
       },
       "FamilyMember": {
         "properties": {
@@ -553,71 +597,13 @@
         },
         "type": "object",
         "title": "SearchRequest"
-      },
-      "ErrorResponse": {
-        "properties": {
-          "detail": {
-            "type": "string",
-            "title": "Detail",
-            "description": "A human-readable explanation of the error"
-          }
-        },
-        "type": "object",
-        "required": [
-          "detail"
-        ],
-        "title": "ErrorResponse",
-        "description": "Standard error response format"
-      },
-      "ValidationError": {
-        "properties": {
-          "detail": {
-            "items": {
-              "$ref": "#/components/schemas/ValidationErrorDetail"
-            },
-            "type": "array",
-            "title": "Detail"
-          }
-        },
-        "type": "object",
-        "required": [
-          "detail"
-        ],
-        "title": "ValidationError",
-        "description": "Validation error response format"
-      },
-      "ValidationErrorDetail": {
-        "properties": {
-          "loc": {
-            "items": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "integer"
-                }
-              ]
-            },
-            "type": "array",
-            "title": "Location"
-          },
-          "msg": {
-            "type": "string",
-            "title": "Message"
-          },
-          "type": {
-            "type": "string",
-            "title": "Error Type"
-          }
-        },
-        "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
-        "title": "ValidationErrorDetail"
+      }
+    },
+    "securitySchemes": {
+      "APIKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
       }
     }
   }
