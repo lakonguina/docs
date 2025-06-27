@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "linden",
+  "theme": "mint",
   "name": "Channel3",
   "colors": {
     "primary": "#5D3FD3",
@@ -16,22 +16,28 @@
           {
             "group": "Get Started",
             "pages": [
-              "index"
+              "index",
+              "core-concepts"
             ]
           },
           {
             "group": "MCP",
             "pages": [
-              "overview"
+              "mcp-overview"
             ]
           },
           {
             "group": "API",
             "pages": [
-              "quickstart",
-              "typescript-sdk",
               "api-reference/endpoint/search",
               "api-reference/endpoint/detail"
+            ]
+          },
+          {
+            "group": "SDK",
+            "pages": [
+              "python-sdk",
+              "typescript-sdk"
             ]
           }
         ]
@@ -46,7 +52,7 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:alex@trychannel3.com"
+        "href": "mailto:founders@trychannel3.com"
       }
     ],
     "primary": {

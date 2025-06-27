@@ -1,0 +1,128 @@
+---
+title: 'Overview'
+description: 'Add the Channel3 MCP to your agent'
+---
+
+## What is the Channel3 MCP?
+
+Model Context Protocol (MCP) is a standard that allows AI agents to securely connect to external data sources and tools. Think of it as a bridge that lets your AI assistant access real-world information and take actions beyond just generating text.
+
+The Channel3 MCP specifically gives your AI agents superpowers for product discovery. Your agent can search through millions of real products in real-time, complete with current prices, rich images, detailed descriptions, and real-time availability.
+
+## Why Use an MCP?
+
+**Real-time Data**: Your agents get access to live product information, not stale training data from months ago.
+
+**Enhanced Capabilities**: Transform your AI from a conversational tool into an action-oriented shopping assistant.
+
+**Revenue Generation**: Earn commissions when users purchase products your agent recommends.
+
+**Better User Experience**: Provide specific, actionable recommendations with direct purchase links rather than vague suggestions.
+
+## Example Projects You Could Build
+
+<CardGroup cols={2}>
+  <Card title="Personal Shopping Assistant" icon="robot">
+    Build an AI that helps users find the perfect product based on their specific needs, budget, and preferences. Great for gift recommendations or comparing products across categories.
+  </Card>
+  
+  <Card title="Deal Hunter Bot" icon="tags">
+    Create an agent that monitors product prices and alerts users when items drop below their target price, or finds similar products at better prices.
+  </Card>
+  
+  <Card title="Product Review Analyzer" icon="star">
+    Develop an AI that searches for products, analyzes reviews across platforms, and provides honest recommendations based on real user feedback.
+  </Card>
+  
+  <Card title="Niche Shopping Curator" icon="robot">
+    Build specialized shopping assistants for specific niches (tech gear for developers, art supplies for creators, fitness equipment, etc.) with deep domain knowledge.
+  </Card>
+</CardGroup>
+
+## Getting Started
+
+Ready to add product search capabilities to your AI agent? Here's how to get set up:
+
+**Step 1**:
+<Card title = "Create an account" icon="user" href="https://trychannel3.com/sign-up">
+  Create an account to curate your catalog and track payouts. It's free to get started!
+</Card>
+
+**Step 2**:
+<Card title = "Create an API Key" icon="key" href="https://trychannel3.com/dashboard/api">
+  Your API Key will be used to authenticate your requests to the Channel3 MCP and ensure purchases get attributed to your account.
+</Card>
+
+**Step 3**: Add the Channel3 MCP to your agent.
+
+Choose your setup method based on your preferred platform:
+
+<CodeGroup>
+
+```json Claude Config
+{
+  "mcpServers": {
+    "Channel3": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp-server.channel3.workers.dev/sse",
+	    "--header",
+	    "x-api-key: ${apiKey}"
+      ],
+      "env": {
+        "apiKey": <your-api-key>
+      }
+    }
+  }
+}
+```
+
+```python OpenAI Agents SDK
+from openai.agents import Agent
+from agents.mcp import MCPServerStdio
+
+async def main(message: str):
+  async with MCPServerStdio(
+      name="Channel3 MCP Server",
+      cache_tools_list=True,
+      params={
+          "command": "npx",
+          "args": [
+              "mcp-remote",
+              "https://mcp-server.channel3.workers.dev/sse",
+              "--header",
+              "x-api-key: <your-api-key>"
+          ],
+      },
+  ) as mcp_server:
+      print("MCP server connected")
+      # Initialize the agent with the MCP server
+      shopping_agent = Agent[DemoShoppingContext](
+          name="Shopping Agent",
+          instructions=(
+              "You are a personal shopping assistant. "
+              "Help the user find the best products for their needs. "
+              "You have access to a tool to search the web for products."
+          ),
+          output_type=TextResponse,
+          model="gpt-4.1-nano",
+          # https://github.com/openai/openai-agents-python/blob/main/examples/mcp/sse_example/main.py
+          mcp_servers=[mcp_server],
+      )
+
+      result = Runner.run_streamed(
+          shopping_agent,
+          input=message,
+      )
+
+      for chunk in result:
+        print(chunk)
+
+asyncio.run(main("I'm looking for a new laptop"))
+```
+
+</CodeGroup>
+
+That's it! Your agent now has access to Channel3's product search capabilities. Start building and watch your AI come to life with real-world shopping superpowers. 🛍️
+
