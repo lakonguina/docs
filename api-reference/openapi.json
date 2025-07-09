@@ -360,7 +360,14 @@
             "title": "Title"
           },
           "description": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Description"
           },
           "image_url": {
@@ -389,7 +396,6 @@
           "score",
           "brand_name",
           "title",
-          "description",
           "image_url",
           "offers"
         ],
@@ -398,45 +404,64 @@
       },
       "ProductDetail": {
         "properties": {
-          "brand_id": {
-            "type": "string",
-            "title": "Brand Id"
-          },
-          "brand_name": {
-            "type": "string",
-            "title": "Brand Name"
-          },
           "title": {
             "type": "string",
             "title": "Title"
           },
           "description": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Description"
           },
           "image_urls": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Image Urls"
+          },
+          "brand_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Id"
+          },
+          "brand_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Name"
           },
           "merchant_offerings": {
             "items": {
               "$ref": "#/components/schemas/MerchantOffering"
             },
             "type": "array",
-            "title": "Merchant Offerings"
-          },
-          "gender": {
-            "type": "string",
-            "enum": [
-              "na",
-              "men",
-              "women"
-            ],
-            "title": "Gender",
-            "default": "na"
+            "title": "Merchant Offerings",
+            "default": []
           },
           "materials": {
             "anyOf": [
@@ -453,12 +478,18 @@
             "title": "Materials"
           },
           "key_features": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Key Features",
-            "default": []
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key Features"
           },
           "family_members": {
             "items": {
@@ -471,46 +502,13 @@
         },
         "type": "object",
         "required": [
-          "brand_id",
-          "brand_name",
-          "title",
-          "description",
-          "image_urls",
-          "merchant_offerings"
+          "title"
         ],
         "title": "ProductDetail",
         "description": "A product with detailed information"
       },
-      "SearchFilters": {
+      "SearchFilterPrice": {
         "properties": {
-          "colors": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Colors"
-          },
-          "materials": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Materials"
-          },
           "min_price": {
             "anyOf": [
               {
@@ -532,6 +530,62 @@
               }
             ],
             "title": "Max Price"
+          }
+        },
+        "type": "object",
+        "title": "SearchFilterPrice"
+      },
+      "SearchFilters": {
+        "properties": {
+          "brands": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brands"
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "male",
+                  "female",
+                  "unisex"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SearchFilterPrice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "availability": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AvailabilityStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -573,14 +627,8 @@
             "title": "Base64 Image"
           },
           "filters": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/SearchFilters"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "$ref": "#/components/schemas/SearchFilters",
+            "default": {}
           },
           "limit": {
             "anyOf": [

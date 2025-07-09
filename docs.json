@@ -9,37 +9,32 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "tabs": [
+    "groups": [
       {
-        "tab": "Docs",
-        "groups": [
-          {
-            "group": "Get Started",
-            "pages": [
-              "index",
-              "core-concepts"
-            ]
-          },
-          {
-            "group": "MCP",
-            "pages": [
-              "mcp-overview"
-            ]
-          },
-          {
-            "group": "API",
-            "pages": [
-              "api-reference/endpoint/search",
-              "api-reference/endpoint/detail"
-            ]
-          },
-          {
-            "group": "SDK",
-            "pages": [
-              "python-sdk",
-              "typescript-sdk"
-            ]
-          }
+        "group": "Get Started",
+        "pages": [
+          "index",
+          "core-concepts"
+        ]
+      },
+      {
+        "group": "MCP",
+        "pages": [
+          "mcp-overview"
+        ]
+      },
+      {
+        "group": "API",
+        "pages": [
+          "api-reference/endpoint/search",
+          "api-reference/endpoint/detail"
+        ]
+      },
+      {
+        "group": "SDK",
+        "pages": [
+          "python-sdk",
+          "typescript-sdk"
         ]
       }
     ]
