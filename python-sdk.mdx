@@ -20,7 +20,11 @@ poetry add channel3-sdk
 
 ## Authentication
 
-Get your API key from the [Channel3 dashboard](https://trychannel3.com/dashboard/api).
+### Getting Your API Key
+
+<Card title="Generate Your API Key" icon="key" href="https://trychannel3.com/dashboard/api">
+  Grab your API key from your Channel3 dashboard if you haven't already.
+</Card>
 
 You can provide your API key directly in code or via the `CHANNEL3_API_KEY` environment variable (recommended for production).
 
@@ -126,7 +130,7 @@ products = client.search(query="running shoes", filters=filters)
 ```
 
 <Tip>
-  You can find brand IDs in the [Channel3 dashboard](https://trychannel3.com/dashboard/brands).
+  You can find brand IDs in the [Channel3 dashboard](https://trychannel3.com/dashboard/brands) or in the Product Detail endpoint.
 </Tip>
 
 ### Price
