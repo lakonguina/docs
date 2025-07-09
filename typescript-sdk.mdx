@@ -91,8 +91,8 @@ async function textSearch() {
         console.log(`- ${product.title}`);
         console.log(`  Brand: ${product.brand_name}`);
         console.log(`  Score: ${product.score}`);
-        if (product.offers && product.offers.length > 0) {
-          console.log(`  Price: $${product.offers[0].price.price} ${product.offers[0].price.currency}`);
+        if (product.price) {
+          console.log(`  Price: $${product.price}`);
         }
       });
     } else {
@@ -218,7 +218,7 @@ async function searchWithFilters() {
     gender: "male", // Options: "male", "female", "unisex"
     
     // Availability filtering
-    availability: "InStock",
+    availability: ["InStock"],
   };
 
   try {
@@ -233,7 +233,7 @@ async function searchWithFilters() {
       products.forEach(product => {
         console.log(`- ${product.title}`);
         console.log(`  Brand: ${product.brand_name}`);
-        console.log(`  Price: $${product.offers?.[0]?.price?.price || 'N/A'}`);
+        console.log(`  Price: $${product.price || 'N/A'}`);
         console.log(`  Availability: ${product.availability || 'Unknown'}`);
       });
     } else {
@@ -250,7 +250,7 @@ async function searchWithFilters() {
   - `brands`: Array of brand names
   - `min_price` / `max_price`: Price range filtering
   - `gender`: Target gender ("male", "female", "unisex")
-  - `availability`: Stock status ("InStock", "OutOfStock", "PreOrder", "LimitedAvailability", "BackOrder", "Discontinued", "SoldOut", "Unknown")
+  - `availability`: Array of stock statuses (["InStock", "OutOfStock", "PreOrder", "LimitedAvailability", "BackOrder", "Discontinued", "SoldOut", "Unknown"])
   - `colors`: Array of color names
   - `materials`: Array of material types
   - `categories`: Array of product categories
@@ -277,13 +277,12 @@ async function getProductDetail(productId: string) {
     console.log(`Categories: ${productDetail.categories?.join(', ') || 'N/A'}`);
     
     // Pricing information
-    if (productDetail.offers && productDetail.offers.length > 0) {
-      console.log(`\nPricing:`);
-      productDetail.offers.forEach((offer, index) => {
-        console.log(`  Offer ${index + 1}: $${offer.price.price} ${offer.price.currency}`);
-        console.log(`    Seller: ${offer.seller_name}`);
-        console.log(`    Availability: ${offer.availability}`);
-      });
+    if (productDetail.price) {
+      console.log(`\nPrice: $${productDetail.price}`);
+    }
+    
+    if (productDetail.availability) {
+      console.log(`Availability: ${productDetail.availability}`);
     }
     
     // Image URLs
@@ -333,6 +332,173 @@ async function searchAndGetDetails() {
 <Note title="Product ID">
   The `productId` is a unique string identifier for each product. You'll get this from the `id` field of `Product` objects returned by the `search` method.
 </Note>
+
+## Brands
+
+### Get All Brands
+
+Retrieve all brands that the vendor currently sells with optional filtering and pagination:
+
+```typescript
+import { Channel3Client, Brand } from 'channel3-sdk';
+
+const client = new Channel3Client({ apiKey: "your_api_key_here" });
+
+async function getAllBrands() {
+  try {
+    // Get all brands (default pagination)
+    const brands: Brand[] = await client.getBrands();
+    
+    console.log(`Found ${brands.length} brands:`);
+    brands.forEach(brand => {
+      console.log(`- ${brand.name} (ID: ${brand.id})`);
+      if (brand.description) {
+        console.log(`  Description: ${brand.description}`);
+      }
+    });
+    
+    return brands;
+  } catch (error) {
+    console.error("Error fetching brands:", error);
+    return [];
+  }
+}
+
+async function searchBrands() {
+  try {
+    // Search brands with query filter
+    const athleticBrands = await client.getBrands("athletic");
+    console.log(`Found ${athleticBrands.length} athletic brands`);
+    
+    // Get brands with pagination
+    const page2Brands = await client.getBrands(undefined, 2, 50);
+    console.log(`Page 2 brands: ${page2Brands.length} results`);
+    
+    // Combined filtering and pagination
+    const filteredBrands = await client.getBrands("premium", 1, 25);
+    console.log(`Premium brands (page 1, 25 per page): ${filteredBrands.length} results`);
+    
+    return filteredBrands;
+  } catch (error) {
+    console.error("Error in brand search:", error);
+    return [];
+  }
+}
+```
+
+### Get Brand Details
+
+Retrieve detailed information about a specific brand:
+
+```typescript
+import { Channel3Client, Brand, Channel3NotFoundError } from 'channel3-sdk';
+
+const client = new Channel3Client({ apiKey: "your_api_key_here" });
+
+async function getBrandDetail(brandId: string) {
+  try {
+    const brand: Brand = await client.getBrand(brandId);
+    
+    console.log(`Brand Details for: ${brand.name}`);
+    console.log(`Brand ID: ${brand.id}`);
+    
+    if (brand.description) {
+      console.log(`Description: ${brand.description}`);
+    }
+    
+    if (brand.website) {
+      console.log(`Website: ${brand.website}`);
+    }
+    
+    if (brand.logo_url) {
+      console.log(`Logo URL: ${brand.logo_url}`);
+    }
+    
+    console.log(`Product Count: ${brand.product_count || 'N/A'}`);
+    
+    return brand;
+  } catch (error) {
+    if (error instanceof Channel3NotFoundError) {
+      console.error(`Brand with ID '${brandId}' not found.`);
+    } else {
+      console.error(`Error fetching brand details:`, error);
+    }
+    throw error;
+  }
+}
+```
+
+### Using Brand IDs in Search Filters
+
+Use brand IDs obtained from the brands endpoints in your search filters:
+
+```typescript
+import { Channel3Client, SearchFilters } from 'channel3-sdk';
+
+const client = new Channel3Client({ apiKey: "your_api_key_here" });
+
+async function searchWithBrandFilters() {
+  try {
+    // First, get available brands
+    const athleticBrands = await client.getBrands("athletic");
+    const brandIds = athleticBrands.slice(0, 3).map(brand => brand.id); // Take first 3 brands
+    
+    console.log(`Using brand IDs: ${brandIds.join(', ')}`);
+    
+    // Use brand IDs in search filters
+    const filters: SearchFilters = {
+      brands: brandIds,
+      min_price: 50.0,
+      max_price: 200.0,
+      availability: ["InStock"]
+    };
+    
+    const products = await client.search({
+      query: "running shoes",
+      filters: filters,
+      limit: 10
+    });
+    
+    console.log(`Found ${products.length} products from selected brands:`);
+    products.forEach(product => {
+      console.log(`- ${product.title}`);
+              console.log(`  Brand: ${product.brand_name}`);
+        console.log(`  Price: $${product.price || 'N/A'}`);
+      });
+    
+    return products;
+  } catch (error) {
+    console.error("Error in brand-filtered search:", error);
+    return [];
+  }
+}
+
+// Complete brand workflow example
+async function brandWorkflow() {
+  try {
+    console.log("1. Getting all brands...");
+    const allBrands = await getAllBrands();
+    
+    if (allBrands.length > 0) {
+      console.log("\n2. Getting details for first brand...");
+      await getBrandDetail(allBrands[0].id);
+      
+      console.log("\n3. Searching products from this brand...");
+      await searchWithBrandFilters();
+    }
+  } catch (error) {
+    console.error("Error in brand workflow:", error);
+  }
+}
+```
+
+<Check>
+  **Brand ID Stability:** Brand IDs are stable identifiers that you can cache and reuse. They won't change unless a brand is completely removed from the platform.
+</Check>
+
+<Tip>
+  You can find brand IDs in the [Channel3 dashboard](https://trychannel3.com/dashboard/brands) or by using the `getBrands()` method to discover available brands programmatically.
+</Tip>
 
 ## Errors
 
@@ -427,7 +593,7 @@ class ProductSearchApp {
     brands?: string[];
     priceRange?: { min: number; max: number };
     gender?: string;
-    availability?: string;
+    availability?: string[];
     limit?: number;
   } = {}): Promise<Product[]> {
     try {
@@ -511,15 +677,66 @@ class ProductSearchApp {
     console.log(`   Brand: ${product.brand_name}`);
     console.log(`   Score: ${product.score}`);
     
-    if (product.offers && product.offers.length > 0) {
-      const offer = product.offers[0];
-      console.log(`   Price: $${offer.price.price} ${offer.price.currency}`);
-      console.log(`   Seller: ${offer.seller_name}`);
-      console.log(`   Stock: ${offer.availability}`);
-    }
+          if (product.price) {
+        console.log(`   Price: $${product.price}`);
+      }
+      
+      if (product.availability) {
+        console.log(`   Availability: ${product.availability}`);
+      }
     
     if (product.image_urls && product.image_urls.length > 0) {
       console.log(`   Image: ${product.image_urls[0]}`);
+    }
+  }
+
+  // Brand operations demo
+  async demonstrateBrandOperations(): Promise<void> {
+    try {
+      // Get all brands with pagination
+      console.log("   Getting athletic brands...");
+      const brands = await this.client.getBrands("athletic", 1, 10);
+      console.log(`   ✅ Found ${brands.length} athletic brands`);
+      
+      brands.slice(0, 3).forEach(brand => {
+        console.log(`   - ${brand.name} (ID: ${brand.id})`);
+      });
+      
+      // Get detailed brand information
+      if (brands.length > 0) {
+        const brandId = brands[0].id;
+        console.log(`   Getting details for brand: ${brands[0].name}...`);
+        
+        try {
+          const detailedBrand = await this.client.getBrand(brandId);
+          console.log(`   📋 Brand Details:`);
+          console.log(`      Name: ${detailedBrand.name}`);
+          if (detailedBrand.description) {
+            console.log(`      Description: ${detailedBrand.description.substring(0, 100)}...`);
+          }
+          console.log(`      Product Count: ${detailedBrand.product_count || 'N/A'}`);
+          
+        } catch (error) {
+          console.log("   Brand details not available");
+        }
+        
+        // Search using specific brand filters
+        const brandIds = brands.slice(0, 2).map(b => b.id);
+        console.log(`   Searching products from brands: ${brandIds.join(', ')}`);
+        
+        const brandProducts = await this.searchProducts("running shoes", {
+          brands: brandIds,
+          limit: 3
+        });
+        
+        console.log(`   Found ${brandProducts.length} products from selected brands:`);
+        brandProducts.forEach(product => {
+          console.log(`   - ${product.title} (${product.brand_name})`);
+        });
+      }
+      
+    } catch (error) {
+      this.handleError(error, 'brand operations');
     }
   }
 
@@ -533,7 +750,7 @@ class ProductSearchApp {
       brands: ["brand_id_1", "brand_id_2"],
       priceRange: { min: 50, max: 150 },
       gender: "male",
-      availability: "InStock",
+      availability: ["InStock"],
       limit: 5
     });
     
@@ -578,8 +795,12 @@ class ProductSearchApp {
       }
     }
 
-    // 4. Error handling demo (intentional error)
-    console.log("\n4️⃣ Demonstrating error handling...");
+    // 4. Brand operations demo
+    console.log("\n4️⃣ Demonstrating brand operations...");
+    await this.demonstrateBrandOperations();
+
+    // 5. Error handling demo (intentional error)
+    console.log("\n5️⃣ Demonstrating error handling...");
     await this.getProductDetails("non_existent_product_id");
 
     console.log("\n✅ Demo completed!");

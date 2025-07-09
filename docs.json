@@ -27,7 +27,9 @@
         "group": "API",
         "pages": [
           "api-reference/endpoint/search",
-          "api-reference/endpoint/detail"
+          "api-reference/endpoint/detail",
+          "api-reference/endpoint/brands",
+          "api-reference/endpoint/brand-detail"
         ]
       },
       {

@@ -149,20 +149,22 @@ products = client.search(query="athletic wear", filters=filters)
 ### Availability
 
 ```python
-filters = SearchFilters(availability="InStock")
+filters = SearchFilters(availability=["InStock"])
 products = client.search(query="backpack", filters=filters)
 ```
 
 <Tip>
-    The availability filter can be one of the following:
-    - InStock
-    - OutOfStock
-    - PreOrder
-    - LimitedAvailability
-    - BackOrder
-    - Discontinued
-    - SoldOut
-    - Unknown
+    The availability filter should be an array containing one or more of the following values:
+    - "InStock"
+    - "OutOfStock"
+    - "PreOrder"
+    - "LimitedAvailability"
+    - "BackOrder"
+    - "Discontinued"
+    - "SoldOut"
+    - "Unknown"
+    
+    Example: `availability=["InStock", "PreOrder"]` to find products that are either in stock or available for pre-order.
 </Tip>
 
 ### Combined Filters
@@ -173,7 +175,7 @@ filters = SearchFilters(
     min_price=50.0,
     max_price=200.0,
     gender="male",
-    availability="InStock"
+    availability=["InStock"]
 )
 
 products = client.search(
@@ -181,12 +183,6 @@ products = client.search(
     filters=filters,
     limit=10
 )
-
-for product in products:
-    print(f"Product: {product.title}")
-    if product.offers:
-        price = product.offers[0].price
-        print(f"Price: ${price.price} {price.currency}")
 ```
 
 ## Product Detail
@@ -211,15 +207,100 @@ try:
     if product.image_urls:
         print(f"Images: {product.image_urls}")
     
-    if product.offers:
-        for offer in product.offers:
-            print(f"Merchant: {offer.merchant_name}")
-            print(f"Price: ${offer.price.price} {offer.price.currency}")
-            print(f"Availability: {offer.availability}")
         
 except Channel3NotFoundError:
     print("Product not found")
 ```
+
+## Brands
+
+### Get All Brands
+
+Retrieve all brands that the vendor currently sells with optional filtering and pagination:
+
+```python
+from channel3_sdk import Channel3Client
+
+client = Channel3Client(api_key="your_api_key_here")
+
+# Get all brands
+brands = client.get_brands()
+
+for brand in brands:
+    print(f"Brand: {brand.name}")
+    print(f"ID: {brand.id}")
+    if brand.description:
+        print(f"Description: {brand.description}")
+
+# Get brands with query filter
+brands = client.get_brands(query="nike")
+
+# Get brands with pagination
+brands = client.get_brands(page=2, size=50)
+
+# Combined filtering and pagination
+brands = client.get_brands(
+    query="athletic wear",
+    page=1,
+    size=25
+)
+```
+
+### Get Brand Details
+
+Retrieve detailed information about a specific brand:
+
+```python
+from channel3_sdk import Channel3Client, Channel3NotFoundError
+
+client = Channel3Client(api_key="your_api_key_here")
+
+try:
+    brand = client.get_brand("brand_id_here")
+    
+    print(f"Brand Name: {brand.name}")
+    print(f"Brand ID: {brand.id}")
+    
+    if brand.description:
+        print(f"Description: {brand.description}")
+        
+    if brand.website:
+        print(f"Website: {brand.website}")
+        
+    if brand.logo_url:
+        print(f"Logo: {brand.logo_url}")
+        
+    print(f"Product Count: {brand.product_count}")
+    
+except Channel3NotFoundError:
+    print("Brand not found")
+```
+
+### Using Brand IDs in Search Filters
+
+Use brand IDs obtained from the brands endpoints in your search filters:
+
+```python
+from channel3_sdk import Channel3Client, SearchFilters
+
+client = Channel3Client(api_key="your_api_key_here")
+
+# First, get available brands
+brands = client.get_brands(query="athletic")
+brand_ids = [brand.id for brand in brands[:3]]  # Take first 3 brands
+
+# Use brand IDs in search filters
+filters = SearchFilters(brands=brand_ids)
+products = client.search(query="running shoes", filters=filters)
+
+for product in products:
+    print(f"Product: {product.title}")
+    print(f"Brand: {product.brand_name}")
+```
+
+<Tip>
+  Brand IDs are stable identifiers that you can cache and reuse. They won't change unless a brand is completely removed from the platform.
+</Tip>
 
 ## Errors
 
@@ -287,7 +368,7 @@ async def main():
             min_price=80.0,
             max_price=200.0,
             gender="male",
-            availability="InStock"
+            availability=["InStock"]
         )
         
         print("Searching for men's running shoes...")
@@ -305,11 +386,11 @@ async def main():
             print(f"   Brand: {product.brand_name}")
             print(f"   Score: {product.score}")
             
-            if product.offers:
-                offer = product.offers[0]
-                print(f"   Price: ${offer.price.price} {offer.price.currency}")
-                print(f"   Merchant: {offer.merchant_name}")
-                print(f"   Availability: {offer.availability}")
+            if product.price:
+                print(f"   Price: ${product.price}")
+                
+            if product.availability:
+                print(f"   Availability: {product.availability}")
         
         # Get detailed information for the first product
         if products:
@@ -340,6 +421,41 @@ async def main():
         print(f"Multimodal search found {len(multimodal_products)} products")
         for product in multimodal_products:
             print(f"- {product.title}")
+            
+        # Example brand operations
+        print("\nFetching brand information...")
+        
+        # Get all brands with pagination
+        brands = await client.get_brands(query="athletic", page=1, size=10)
+        print(f"Found {len(brands)} athletic brands")
+        
+        for brand in brands[:3]:
+            print(f"- {brand.name} (ID: {brand.id})")
+            
+        # Get detailed brand information
+        if brands:
+            brand_id = brands[0].id
+            try:
+                detailed_brand = await client.get_brand(brand_id)
+                print(f"\nBrand Details for: {detailed_brand.name}")
+                if detailed_brand.description:
+                    print(f"Description: {detailed_brand.description}")
+                print(f"Product Count: {detailed_brand.product_count}")
+                
+            except Channel3NotFoundError:
+                print("Brand details not found")
+                
+        # Search using specific brand filters
+        if brands:
+            brand_ids = [brand.id for brand in brands[:2]]
+            brand_filtered_products = await client.search(
+                query="running shoes",
+                filters=SearchFilters(brands=brand_ids),
+                limit=5
+            )
+            print(f"\nBrand-filtered search found {len(brand_filtered_products)} products")
+            for product in brand_filtered_products:
+                print(f"- {product.title} ({product.brand_name})")
             
     except Channel3AuthenticationError:
         print("Authentication failed. Please check your API key.")
