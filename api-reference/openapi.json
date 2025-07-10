@@ -272,11 +272,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Brand"
-                  },
-                  "title": "Response Get Brands V0 Brands Get"
+                  "$ref": "#/components/schemas/PaginatedResponse_Brand_"
                 }
               }
             }
@@ -476,12 +472,12 @@
         "type": "string",
         "enum": [
           "InStock",
-          "OutOfStock",
-          "PreOrder",
           "LimitedAvailability",
+          "PreOrder",
           "BackOrder",
-          "Discontinued",
           "SoldOut",
+          "OutOfStock",
+          "Discontinued",
           "Unknown"
         ],
         "title": "AvailabilityStatus"
@@ -537,6 +533,82 @@
           "detail"
         ],
         "title": "ErrorResponse"
+      },
+      "PaginatedResponse_Brand_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Brand"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "pagination"
+        ],
+        "title": "PaginatedResponse[Brand]"
+      },
+      "PaginationMeta": {
+        "properties": {
+          "current_page": {
+            "type": "integer",
+            "title": "Current Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          },
+          "total_count": {
+            "type": "integer",
+            "title": "Total Count"
+          },
+          "total_pages": {
+            "type": "integer",
+            "title": "Total Pages"
+          },
+          "has_more": {
+            "type": "boolean",
+            "title": "Has More"
+          },
+          "next_page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Page"
+          },
+          "prev_page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prev Page"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current_page",
+          "page_size",
+          "total_count",
+          "total_pages",
+          "has_more"
+        ],
+        "title": "PaginationMeta",
+        "description": "Pagination metadata for responses"
       },
       "Price": {
         "properties": {
