@@ -4,6 +4,12 @@
     "title": "FastAPI",
     "version": "0.1.0"
   },
+  "servers": [
+    {
+      "url": "https://api.trychannel3.com",
+      "description": "Production environment"
+    }
+  ],
   "paths": {
     "/v0/search": {
       "post": {
@@ -652,6 +658,10 @@
             "type": "number",
             "title": "Score"
           },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
           "title": {
             "type": "string",
             "title": "Title"
@@ -694,6 +704,7 @@
         "required": [
           "id",
           "score",
+          "url",
           "title",
           "brand_name",
           "image_url",
@@ -705,6 +716,14 @@
       },
       "ProductDetail": {
         "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
           "title": {
             "type": "string",
             "title": "Title"
@@ -817,6 +836,8 @@
         },
         "type": "object",
         "required": [
+          "id",
+          "url",
           "title",
           "price",
           "availability"
