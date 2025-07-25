@@ -470,6 +470,185 @@
           }
         }
       }
+    },
+    "/v0/customers": {
+      "post": {
+        "tags": [
+          "channel3-api"
+        ],
+        "summary": "Create Customer",
+        "description": "Register a new customer in Channel3. A customer can be either a Person or an Entity (company).",
+        "operationId": "create_customer_v0_customers_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  { "$ref": "#/components/schemas/PersonCustomerCreateRequest" },
+                  { "$ref": "#/components/schemas/EntityCustomerCreateRequest" }
+                ],
+                "discriminator": {
+                  "propertyName": "type",
+                  "mapping": {
+                    "person": "#/components/schemas/PersonCustomerCreateRequest",
+                    "entity": "#/components/schemas/EntityCustomerCreateRequest"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Customer created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/PersonCustomer" },
+                    { "$ref": "#/components/schemas/EntityCustomer" }
+                  ],
+                  "discriminator": {
+                    "propertyName": "type",
+                    "mapping": {
+                      "person": "#/components/schemas/PersonCustomer",
+                      "entity": "#/components/schemas/EntityCustomer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication"
+          },
+          "409": {
+            "description": "Conflict - Customer already exists"
+          },
+          "422": {
+            "description": "Validation Error"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/v0/customers/{customer_id}": {
+      "get": {
+        "tags": ["channel3-api"],
+        "summary": "Get Customer",
+        "description": "Retrieve a customer (person or entity) by ID.",
+        "operationId": "get_customer_v0_customers_customer_id_get",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Unique customer identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/PersonCustomer" },
+                    { "$ref": "#/components/schemas/EntityCustomer" }
+                  ],
+                  "discriminator": {
+                    "propertyName": "type",
+                    "mapping": {
+                      "person": "#/components/schemas/PersonCustomer",
+                      "entity": "#/components/schemas/EntityCustomer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Customer not found" },
+          "401": { "description": "Unauthorized - Invalid or missing authentication" },
+          "500": { "description": "Internal Server Error" }
+        },
+        "security": [ { "APIKeyHeader": [] } ]
+      },
+      "patch": {
+        "tags": ["channel3-api"],
+        "summary": "Update Customer",
+        "description": "Update a customer (person or entity) by ID. Only provided fields will be updated.",
+        "operationId": "update_customer_v0_customers_customer_id_patch",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Unique customer identifier"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  { "$ref": "#/components/schemas/PersonCustomerUpdateRequest" },
+                  { "$ref": "#/components/schemas/EntityCustomerUpdateRequest" }
+                ],
+                "discriminator": {
+                  "propertyName": "type",
+                  "mapping": {
+                    "person": "#/components/schemas/PersonCustomerUpdateRequest",
+                    "entity": "#/components/schemas/EntityCustomerUpdateRequest"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Customer updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/PersonCustomer" },
+                    { "$ref": "#/components/schemas/EntityCustomer" }
+                  ],
+                  "discriminator": {
+                    "propertyName": "type",
+                    "mapping": {
+                      "person": "#/components/schemas/PersonCustomer",
+                      "entity": "#/components/schemas/EntityCustomer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Bad Request - Invalid input" },
+          "404": { "description": "Customer not found" },
+          "401": { "description": "Unauthorized - Invalid or missing authentication" },
+          "409": { "description": "Conflict - Update conflict" },
+          "422": { "description": "Validation Error" },
+          "500": { "description": "Internal Server Error" }
+        },
+        "security": [ { "APIKeyHeader": [] } ]
+      }
     }
   },
   "components": {
@@ -1016,6 +1195,211 @@
           "image_url"
         ],
         "title": "Variant"
+      },
+      "PersonCustomerCreateRequest": {
+        "type": "object",
+        "required": ["type", "first_name", "last_name", "profile", "contact"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["person"],
+            "description": "Discriminator for person customer type"
+          },
+          "first_name": {
+            "type": "string",
+            "description": "First name of the person"
+          },
+          "last_name": {
+            "type": "string",
+            "description": "Last name of the person"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/CustomerProfile"
+          },
+          "contact": {
+            "$ref": "#/components/schemas/CustomerContact"
+          }
+        }
+      },
+      "EntityCustomerCreateRequest": {
+        "type": "object",
+        "required": ["type", "company_name", "profile", "contact"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["entity"],
+            "description": "Discriminator for entity customer type"
+          },
+          "company_name": {
+            "type": "string",
+            "description": "Name of the company"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/CustomerProfile"
+          },
+          "contact": {
+            "$ref": "#/components/schemas/CustomerContact"
+          }
+        }
+      },
+      "CustomerProfile": {
+        "type": "object",
+        "required": ["website"],
+        "properties": {
+          "website": {
+            "type": "string",
+            "description": "Website URL (required)"
+          },
+          "socials": {
+            "type": "object",
+            "description": "Optional social media links (twitter, linkedin, facebook, instagram)",
+            "properties": {
+              "twitter": { "type": "string", "description": "Twitter profile URL" },
+              "linkedin": { "type": "string", "description": "LinkedIn profile URL" },
+              "facebook": { "type": "string", "description": "Facebook profile URL" },
+              "instagram": { "type": "string", "description": "Instagram profile URL" }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "CustomerContact": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone number"
+          }
+        },
+        "anyOf": [
+          { "required": ["email"] },
+          { "required": ["phone"] }
+        ]
+      },
+      "PersonCustomer": {
+        "type": "object",
+        "required": ["id", "type", "first_name", "last_name", "profile", "contact", "created_at", "updated_at"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique customer identifier"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["person"],
+            "description": "Discriminator for person customer type"
+          },
+          "first_name": {
+            "type": "string",
+            "description": "First name of the person"
+          },
+          "last_name": {
+            "type": "string",
+            "description": "Last name of the person"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/CustomerProfile"
+          },
+          "contact": {
+            "$ref": "#/components/schemas/CustomerContact"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO8601 timestamp of when the customer was created"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO8601 timestamp of when the customer was last updated"
+          }
+        }
+      },
+      "EntityCustomer": {
+        "type": "object",
+        "required": ["id", "type", "company_name", "profile", "contact", "created_at", "updated_at"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique customer identifier"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["entity"],
+            "description": "Discriminator for entity customer type"
+          },
+          "company_name": {
+            "type": "string",
+            "description": "Name of the company"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/CustomerProfile"
+          },
+          "contact": {
+            "$ref": "#/components/schemas/CustomerContact"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO8601 timestamp of when the customer was created"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO8601 timestamp of when the customer was last updated"
+          }
+        }
+      },
+      "PersonCustomerUpdateRequest": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["person"],
+            "description": "Discriminator for person customer type"
+          },
+          "first_name": {
+            "type": "string",
+            "description": "First name of the person"
+          },
+          "last_name": {
+            "type": "string",
+            "description": "Last name of the person"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/CustomerProfile"
+          },
+          "contact": {
+            "$ref": "#/components/schemas/CustomerContact"
+          }
+        }
+      },
+      "EntityCustomerUpdateRequest": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["entity"],
+            "description": "Discriminator for entity customer type"
+          },
+          "company_name": {
+            "type": "string",
+            "description": "Name of the company"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/CustomerProfile"
+          },
+          "contact": {
+            "$ref": "#/components/schemas/CustomerContact"
+          }
+        }
       }
     },
     "securitySchemes": {
