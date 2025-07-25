@@ -649,6 +649,566 @@
         },
         "security": [ { "APIKeyHeader": [] } ]
       }
+    },
+    "/v0/earnings": {
+      "get": {
+        "tags": ["channel3-api"],
+        "summary": "Get My Earnings",
+        "description": "Get earnings information for the authenticated user.",
+        "operationId": "get_earnings_v0_earnings_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Earnings"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missing_key": {
+                    "summary": "Missing API Key",
+                    "value": {
+                      "detail": "Unauthorized. Missing authentication key. Make sure to attach an x-api-key with your request. Need help? Reach out to founders@trychannel3.com."
+                    }
+                  },
+                  "invalid_key": {
+                    "summary": "Invalid API Key",
+                    "value": {
+                      "detail": "API key was provided but is invalid. Need help? Reach out to founders@trychannel3.com."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "Internal Server Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "APIKeyHeader": [] }]
+      }
+    },
+    "/v0/sells": {
+      "get": {
+        "tags": ["channel3-api"],
+        "summary": "Get Customer Sells",
+        "description": "Get paginated list of customer sells with optional filtering.",
+        "operationId": "get_customer_sells_v0_sells_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                { "type": "string" },
+                { "type": "null" }
+              ],
+              "title": "Product Id"
+            },
+            "description": "Filter by product ID"
+          },
+          {
+            "name": "brand_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                { "type": "string" },
+                { "type": "null" }
+              ],
+              "title": "Brand Id"
+            },
+            "description": "Filter by brand ID"
+          },
+          {
+            "name": "customer_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                { "type": "string" },
+                { "type": "null" }
+              ],
+              "title": "Customer Id"
+            },
+            "description": "Filter by customer ID"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "title": "Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_Sell_"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missing_key": {
+                    "summary": "Missing API Key",
+                    "value": {
+                      "detail": "Unauthorized. Missing authentication key. Make sure to attach an x-api-key with your request. Need help? Reach out to founders@trychannel3.com."
+                    }
+                  },
+                  "invalid_key": {
+                    "summary": "Invalid API Key",
+                    "value": {
+                      "detail": "API key was provided but is invalid. Need help? Reach out to founders@trychannel3.com."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "Internal Server Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "APIKeyHeader": [] }]
+      }
+    },
+    "/v0/sells/summary": {
+      "get": {
+        "tags": ["channel3-api"],
+        "summary": "Get Customer Sells Summary",
+        "description": "Get summary statistics for customer sells.",
+        "operationId": "get_customer_sells_summary_v0_sells_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SellsSummary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missing_key": {
+                    "summary": "Missing API Key",
+                    "value": {
+                      "detail": "Unauthorized. Missing authentication key. Make sure to attach an x-api-key with your request. Need help? Reach out to founders@trychannel3.com."
+                    }
+                  },
+                  "invalid_key": {
+                    "summary": "Invalid API Key",
+                    "value": {
+                      "detail": "API key was provided but is invalid. Need help? Reach out to founders@trychannel3.com."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "Internal Server Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "APIKeyHeader": [] }]
+      }
+    },
+    "/v0/clicks": {
+      "get": {
+        "tags": ["channel3-api"],
+        "summary": "Get Customer Clicks",
+        "description": "Get paginated list of customer clicks with optional filtering.",
+        "operationId": "get_customer_clicks_v0_clicks_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                { "type": "string" },
+                { "type": "null" }
+              ],
+              "title": "Product Id"
+            },
+            "description": "Filter by product ID"
+          },
+          {
+            "name": "brand_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                { "type": "string" },
+                { "type": "null" }
+              ],
+              "title": "Brand Id"
+            },
+            "description": "Filter by brand ID"
+          },
+          {
+            "name": "customer_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                { "type": "string" },
+                { "type": "null" }
+              ],
+              "title": "Customer Id"
+            },
+            "description": "Filter by customer ID"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "title": "Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_Click_"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missing_key": {
+                    "summary": "Missing API Key",
+                    "value": {
+                      "detail": "Unauthorized. Missing authentication key. Make sure to attach an x-api-key with your request. Need help? Reach out to founders@trychannel3.com."
+                    }
+                  },
+                  "invalid_key": {
+                    "summary": "Invalid API Key",
+                    "value": {
+                      "detail": "API key was provided but is invalid. Need help? Reach out to founders@trychannel3.com."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "Internal Server Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "APIKeyHeader": [] }]
+      }
+    },
+    "/v0/clicks/summary": {
+      "get": {
+        "tags": ["channel3-api"],
+        "summary": "Get Customer Clicks Summary",
+        "description": "Get summary statistics for customer clicks.",
+        "operationId": "get_customer_clicks_summary_v0_clicks_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClicksSummary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missing_key": {
+                    "summary": "Missing API Key",
+                    "value": {
+                      "detail": "Unauthorized. Missing authentication key. Make sure to attach an x-api-key with your request. Need help? Reach out to founders@trychannel3.com."
+                    }
+                  },
+                  "invalid_key": {
+                    "summary": "Invalid API Key",
+                    "value": {
+                      "detail": "API key was provided but is invalid. Need help? Reach out to founders@trychannel3.com."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "Internal Server Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "APIKeyHeader": [] }]
+      }
+    },
+    "/v0/customer-links": {
+      "post": {
+        "tags": ["channel3-api"],
+        "summary": "Get Customer Affiliation Link",
+        "description": "Get the affiliation link for a specific customer and product.",
+        "operationId": "get_customer_affiliation_link_v0_customer_links_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerAffiliationLinkRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "description": "The affiliation link URL"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Customer or product not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "APIKeyHeader": [] }]
+      }
+    }
+  },
+  "webhooks": {
+    "customer-sell": {
+      "post": {
+        "tags": ["channel3-api"],
+        "summary": "Webhook for Customer Sell",
+        "description": "Webhook endpoint to receive customer sell notifications.",
+        "operationId": "webhook_customer_sell",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SellWebhook"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook processed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Webhook processed successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid webhook data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "Internal Server Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "APIKeyHeader": [] }]
+      }
     }
   },
   "components": {
@@ -798,32 +1358,26 @@
       "Price": {
         "properties": {
           "price": {
-            "type": "number",
+            "type": "integer",
             "title": "Price",
-            "description": "The current price of the product, including any discounts."
+            "description": "The current price of the product in USD cents, including any discounts."
           },
           "compare_at_price": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "integer"
               },
               {
                 "type": "null"
               }
             ],
             "title": "Compare At Price",
-            "description": "The original price of the product before any discounts."
-          },
-          "currency": {
-            "type": "string",
-            "title": "Currency",
-            "description": "The currency code of the product."
+            "description": "The original price of the product in USD cents before any discounts."
           }
         },
         "type": "object",
         "required": [
-          "price",
-          "currency"
+          "price"
         ],
         "title": "Price"
       },
@@ -1198,7 +1752,7 @@
       },
       "PersonCustomerCreateRequest": {
         "type": "object",
-        "required": ["type", "first_name", "last_name", "profile", "contact"],
+        "required": ["type", "first_name", "last_name", "website_url"],
         "properties": {
           "type": {
             "type": "string",
@@ -1213,17 +1767,35 @@
             "type": "string",
             "description": "Last name of the person"
           },
-          "profile": {
-            "$ref": "#/components/schemas/CustomerProfile"
+          "website_url": {
+            "type": "string",
+            "description": "Website URL"
           },
-          "contact": {
-            "$ref": "#/components/schemas/CustomerContact"
+          "socials_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of social media URLs"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address"
+          },
+          "phone_number": {
+            "type": "string",
+            "description": "Phone number"
           }
-        }
+        },
+        "anyOf": [
+          { "required": ["email"] },
+          { "required": ["phone_number"] }
+        ]
       },
       "EntityCustomerCreateRequest": {
         "type": "object",
-        "required": ["type", "company_name", "profile", "contact"],
+        "required": ["type", "company_name", "website_url"],
         "properties": {
           "type": {
             "type": "string",
@@ -1234,56 +1806,37 @@
             "type": "string",
             "description": "Name of the company"
           },
-          "profile": {
-            "$ref": "#/components/schemas/CustomerProfile"
-          },
-          "contact": {
-            "$ref": "#/components/schemas/CustomerContact"
-          }
-        }
-      },
-      "CustomerProfile": {
-        "type": "object",
-        "required": ["website"],
-        "properties": {
-          "website": {
+          "website_url": {
             "type": "string",
-            "description": "Website URL (required)"
+            "description": "Website URL"
           },
-          "socials": {
-            "type": "object",
-            "description": "Optional social media links (twitter, linkedin, facebook, instagram)",
-            "properties": {
-              "twitter": { "type": "string", "description": "Twitter profile URL" },
-              "linkedin": { "type": "string", "description": "LinkedIn profile URL" },
-              "facebook": { "type": "string", "description": "Facebook profile URL" },
-              "instagram": { "type": "string", "description": "Instagram profile URL" }
+          "socials_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
             },
-            "additionalProperties": true
-          }
-        }
-      },
-      "CustomerContact": {
-        "type": "object",
-        "properties": {
+            "description": "List of social media URLs"
+          },
           "email": {
             "type": "string",
             "format": "email",
             "description": "Email address"
           },
-          "phone": {
+          "phone_number": {
             "type": "string",
             "description": "Phone number"
           }
         },
         "anyOf": [
           { "required": ["email"] },
-          { "required": ["phone"] }
+          { "required": ["phone_number"] }
         ]
       },
+
+
       "PersonCustomer": {
         "type": "object",
-        "required": ["id", "type", "first_name", "last_name", "profile", "contact", "created_at", "updated_at"],
+        "required": ["id", "type", "first_name", "last_name", "website_url", "created_at", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
@@ -1302,11 +1855,25 @@
             "type": "string",
             "description": "Last name of the person"
           },
-          "profile": {
-            "$ref": "#/components/schemas/CustomerProfile"
+          "website_url": {
+            "type": "string",
+            "description": "Website URL"
           },
-          "contact": {
-            "$ref": "#/components/schemas/CustomerContact"
+          "socials_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of social media URLs"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address"
+          },
+          "phone_number": {
+            "type": "string",
+            "description": "Phone number"
           },
           "created_at": {
             "type": "string",
@@ -1322,7 +1889,7 @@
       },
       "EntityCustomer": {
         "type": "object",
-        "required": ["id", "type", "company_name", "profile", "contact", "created_at", "updated_at"],
+        "required": ["id", "type", "company_name", "website_url", "created_at", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
@@ -1337,11 +1904,25 @@
             "type": "string",
             "description": "Name of the company"
           },
-          "profile": {
-            "$ref": "#/components/schemas/CustomerProfile"
+          "website_url": {
+            "type": "string",
+            "description": "Website URL"
           },
-          "contact": {
-            "$ref": "#/components/schemas/CustomerContact"
+          "socials_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of social media URLs"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address"
+          },
+          "phone_number": {
+            "type": "string",
+            "description": "Phone number"
           },
           "created_at": {
             "type": "string",
@@ -1372,11 +1953,25 @@
             "type": "string",
             "description": "Last name of the person"
           },
-          "profile": {
-            "$ref": "#/components/schemas/CustomerProfile"
+          "website_url": {
+            "type": "string",
+            "description": "Website URL"
           },
-          "contact": {
-            "$ref": "#/components/schemas/CustomerContact"
+          "socials_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of social media URLs"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address"
+          },
+          "phone_number": {
+            "type": "string",
+            "description": "Phone number"
           }
         }
       },
@@ -1393,13 +1988,261 @@
             "type": "string",
             "description": "Name of the company"
           },
-          "profile": {
-            "$ref": "#/components/schemas/CustomerProfile"
+          "website_url": {
+            "type": "string",
+            "description": "Website URL"
           },
-          "contact": {
-            "$ref": "#/components/schemas/CustomerContact"
+          "socials_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of social media URLs"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address"
+          },
+          "phone_number": {
+            "type": "string",
+            "description": "Phone number"
           }
         }
+      },
+      "Earnings": {
+        "type": "object",
+        "required": ["total_earnings", "period"],
+        "properties": {
+          "total_earnings": {
+            "type": "integer",
+            "description": "Total earnings amount in USD cents"
+          },
+          "period": {
+            "type": "string",
+            "enum": ["daily", "weekly", "monthly", "yearly", "all_time"],
+            "description": "Time period for earnings"
+          },
+          "commission_rate": {
+            "type": "integer",
+            "description": "Commission rate percentage"
+          },
+          "total_sales": {
+            "type": "integer",
+            "description": "Total sales amount in USD cents"
+          },
+          "total_commission": {
+            "type": "integer",
+            "description": "Total commission earned in USD cents"
+          }
+        },
+        "title": "Earnings"
+      },
+      "Sell": {
+        "type": "object",
+        "required": ["id", "product", "brand", "sale_amount", "commission", "sold_at"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique sell identifier"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product",
+            "description": "Product information"
+          },
+          "brand": {
+            "$ref": "#/components/schemas/Brand",
+            "description": "Brand information"
+          },
+          "sale_amount": {
+            "type": "integer",
+            "description": "Sale amount in USD cents"
+          },
+          "commission": {
+            "type": "integer",
+            "description": "Commission earned in USD cents"
+          },
+          "sold_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO8601 timestamp of when the sale occurred"
+          },
+          "customer_id": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "null" }
+            ],
+            "description": "Customer ID (if available)"
+          }
+        },
+        "title": "Sell"
+      },
+      "PaginatedResponse_Sell_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Sell"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "pagination"
+        ],
+        "title": "PaginatedResponse[Sell]"
+      },
+      "SellsSummary": {
+        "type": "object",
+        "required": ["total_sales", "total_commission", "total_sells"],
+        "properties": {
+          "total_sales": {
+            "type": "integer",
+            "description": "Total sales amount in USD cents"
+          },
+          "total_commission": {
+            "type": "integer",
+            "description": "Total commission earned in USD cents"
+          },
+          "total_sells": {
+            "type": "integer",
+            "description": "Total number of sells"
+          },
+          "average_sale_amount": {
+            "type": "integer",
+            "description": "Average sale amount in USD cents"
+          },
+          "commission_rate": {
+            "type": "integer",
+            "description": "Commission rate percentage"
+          }
+        },
+        "title": "SellsSummary"
+      },
+      "Click": {
+        "type": "object",
+        "required": ["id", "product", "brand", "clicked_at"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique click identifier"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product",
+            "description": "Product information"
+          },
+          "brand": {
+            "$ref": "#/components/schemas/Brand",
+            "description": "Brand information"
+          },
+          "clicked_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO8601 timestamp of when the click occurred"
+          },
+          "customer_id": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "null" }
+            ],
+            "description": "Customer ID (if available)"
+          },
+          "referrer": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "null" }
+            ],
+            "description": "Referrer URL"
+          }
+        },
+        "title": "Click"
+      },
+      "PaginatedResponse_Click_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Click"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "pagination"
+        ],
+        "title": "PaginatedResponse[Click]"
+      },
+      "ClicksSummary": {
+        "type": "object",
+        "required": ["total_clicks", "unique_clicks"],
+        "properties": {
+          "total_clicks": {
+            "type": "integer",
+            "description": "Total number of clicks"
+          },
+          "unique_clicks": {
+            "type": "integer",
+            "description": "Number of unique clicks"
+          },
+          "click_through_rate": {
+            "type": "number",
+            "description": "Click-through rate percentage"
+          },
+          "average_clicks_per_day": {
+            "type": "number",
+            "description": "Average clicks per day"
+          }
+        },
+        "title": "ClicksSummary"
+      },
+      "SellWebhook": {
+        "type": "object",
+        "required": ["event_type", "sell_data", "timestamp"],
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "enum": ["sell"],
+            "description": "Type of webhook event"
+          },
+          "sell_data": {
+            "$ref": "#/components/schemas/Sell"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO8601 timestamp of when the webhook was sent"
+          },
+          "webhook_id": {
+            "type": "string",
+            "description": "Unique webhook identifier"
+          }
+        },
+        "title": "SellWebhook"
+      },
+      "CustomerAffiliationLinkRequest": {
+        "type": "object",
+        "required": ["customer_id", "product_id"],
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Customer ID"
+          },
+          "product_id": {
+            "type": "string",
+            "description": "Product ID"
+          }
+        },
+        "title": "CustomerAffiliationLinkRequest"
       }
     },
     "securitySchemes": {

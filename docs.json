@@ -32,7 +32,14 @@
           "api-reference/endpoint/brand-detail",
           "api-reference/endpoint/customer",
           "api-reference/endpoint/customer-get",
-          "api-reference/endpoint/customer-update"
+          "api-reference/endpoint/customer-update",
+          "api-reference/endpoint/earnings",
+          "api-reference/endpoint/sells",
+          "api-reference/endpoint/sells-summary",
+          "api-reference/endpoint/clicks",
+          "api-reference/endpoint/clicks-summary",
+          "api-reference/endpoint/webhook-sell",
+          "api-reference/endpoint/customer-links"
         ]
       },
       {
