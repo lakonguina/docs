@@ -11,7 +11,7 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
             "group": "Welcome",
@@ -20,20 +20,20 @@
             ]
           },
           {
-            "group": "Customization",
+            "group": "Workflows",
             "pages": [
-              "essentials/quote",
-              "essentials/sign",
-              "essentials/execute"
+              "workflows/quote",
+              "workflows/sign",
+              "workflows/execute"
             ]
           },
           {
             "group": "API Reference",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api-reference/endpoint/get-tokens",
+              "api-reference/endpoint/get-chains",
+              "api-reference/endpoint/post-quote",
+              "api-reference/endpoint/post-execute"
             ]
           }
         ]

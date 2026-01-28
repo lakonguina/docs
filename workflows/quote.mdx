@@ -1,0 +1,70 @@
+---
+title: 'Quote'
+description: 'Request a swap quote'
+icon: 'dollar-sign'
+---
+
+
+```typescript
+import "dotenv/config";
+import { createWalletClient, http, publicActions } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { base } from "viem/chains";
+import { signQuoteSignablePayload } from "./signer";
+
+const account = privateKeyToAccount(process.env.PK! as `0x${string}`);
+
+const walletClient = createWalletClient({
+  account,
+  chain: base,
+  transport: http(),
+}).extend(publicActions);
+
+interface QuoteResponse {
+  payloadToSign: Array<{
+    signablePayload?: unknown;
+    metadata?: unknown;
+    [key: string]: unknown;
+  }>;
+  quote: unknown;
+  fee: unknown;
+  quoteType: "simple" | "permit" | "onchain";
+  ownerAddress: string;
+  [key: string]: unknown;
+}
+
+async function main() {
+  const res = await fetch("http://127.0.0.1:8000/quote", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fromToken: {
+        chainId: 10, // Optimism
+        address: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85", // USDC
+      },
+      toToken: { slug: "wrapped-ethereum" },
+      feeToken: {
+        chainId: 10, // Optimism
+        address: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85", // USDC
+      },
+      allowChains: [10, 8453],
+      amount: "100000", // 0.10 USDC
+      fromAddress: account.address,
+      toAddress: account.address,
+    }),
+  });
+
+  if (!res.ok) throw new Error(`Quote failed: ${res.statusText}`);
+
+  console.log("Fee price in usd:", res.fee.priceUsd);
+  console.log("Ouput in usd:", res.returnedData[0].outputAmountUsd);
+  console.log("Minimum ouput in usd:", quoteResponse.returnedData[0].minOutputAmountUsd);
+}
+
+main().catch(console.error);
+```
+
+## Next Steps
+
+1. [Sign the payloads](/workflows/sign)
+2. [Execute the quote](/workflows/execute)

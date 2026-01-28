@@ -1,94 +1,69 @@
 {
-  "openapi": "3.1.0",
-  "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+  "openapi":"3.1.0",
+  "info":{
+    "title":"FastAPI",
+    "version":"0.1.0"
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "http://127.0.0.1:8000",
+      "description": "Local"
     }
   ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
-  "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+  "paths":{
+    "/quote":{
+      "post":{
+        "summary":"Post Quote",
+        "operationId":"post_quote_quote_post",
+        "requestBody":{
+          "content":{
+            "application/json":{
+              "schema":{
+                "$ref":"#/components/schemas/Quote",
+                "examples":[
+                  {
+                    "fromToken":{
+                      "chainId":10,
+                      "address":"0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
+                    },
+                    "toToken":{
+                      "slug":"circle-usd"
+                    },
+                    "feeToken":{
+                      "chainId":10,
+                      "address":"0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
+                    },
+                    "allowChains":[
+                      10,
+                      8453
+                    ],
+                    "amount":"100000",
+                    "fromAddress":"0x6eBf2153f931334714984c7F5a8E574207927Cc7",
+                    "toAddress":"0x6eBf2153f931334714984c7F5a8E574207927Cc7"
                   }
-                }
+                ]
               }
             }
           },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
+          "required":true
         },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
+        "responses":{
+          "200":{
+            "description":"Successful Response",
+            "content":{
+              "application/json":{
+                "schema":{
+
                 }
               }
             }
           },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
+          "422":{
+            "description":"Validation Error",
+            "content":{
+              "application/json":{
+                "schema":{
+                  "$ref":"#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -96,32 +71,81 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
+    "/execute":{
+      "post":{
+        "summary":"Execute",
+        "operationId":"execute_execute_post",
+        "requestBody":{
+          "content":{
+            "application/json":{
+              "schema":{
+                "$ref":"#/components/schemas/Execute"
+              }
+            }
+          },
+          "required":true
+        },
+        "responses":{
+          "200":{
+            "description":"Successful Response",
+            "content":{
+              "application/json":{
+                "schema":{
+
+                }
+              }
+            }
+          },
+          "422":{
+            "description":"Validation Error",
+            "content":{
+              "application/json":{
+                "schema":{
+                  "$ref":"#/components/schemas/HTTPValidationError"
+                }
+              }
             }
           }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    "/tokens":{
+      "get":{
+        "summary":"Get Tokens",
+        "operationId":"get_tokens_tokens_get",
+        "responses":{
+          "200":{
+            "description":"Successful Response",
+            "content":{
+              "application/json":{
+                "schema":{
+                  "items":{
+                    "$ref":"#/components/schemas/TokenPublic"
+                  },
+                  "type":"array",
+                  "title":"Response Get Tokens Tokens Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chains":{
+      "get":{
+        "summary":"Get Chains",
+        "operationId":"get_chains_chains_get",
+        "responses":{
+          "200":{
+            "description":"Successful Response",
+            "content":{
+              "application/json":{
+                "schema":{
+                  "items":{
+                    "$ref":"#/components/schemas/ChainPublic"
+                  },
+                  "type":"array",
+                  "title":"Response Get Chains Chains Get"
                 }
               }
             }
@@ -130,87 +154,266 @@
       }
     }
   },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+  "components":{
+    "schemas":{
+      "ChainPublic":{
+        "properties":{
+          "id":{
+            "anyOf":[
+              {
+                "type":"integer"
+              },
+              {
+                "type":"null"
               }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
             ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
+            "title":"Id"
           },
-          "message": {
-            "type": "string"
+          "name":{
+            "type":"string",
+            "title":"Name"
+          },
+          "slug":{
+            "type":"string",
+            "title":"Slug"
           }
-        }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+        },
+        "type":"object",
+        "required":[
+          "name",
+          "slug"
+        ],
+        "title":"ChainPublic"
+      },
+      "Execute":{
+        "properties":{
+          "quote":{
+            "additionalProperties":true,
+            "type":"object",
+            "title":"Quote"
+          },
+          "payloadToSign":{
+            "items":{
+              "additionalProperties":true,
+              "type":"object"
+            },
+            "type":"array",
+            "title":"Payloadtosign"
+          }
+        },
+        "type":"object",
+        "required":[
+          "quote",
+          "payloadToSign"
+        ],
+        "title":"Execute"
+      },
+      "HTTPValidationError":{
+        "properties":{
+          "detail":{
+            "items":{
+              "$ref":"#/components/schemas/ValidationError"
+            },
+            "type":"array",
+            "title":"Detail"
+          }
+        },
+        "type":"object",
+        "title":"HTTPValidationError"
+      },
+      "Quote":{
+        "properties":{
+          "fromToken":{
+            "$ref":"#/components/schemas/TokenQuote"
+          },
+          "toToken":{
+            "anyOf":[
+              {
+                "$ref":"#/components/schemas/TokenQuote"
+              },
+              {
+                "$ref":"#/components/schemas/TokenQuoteBySlug"
+              }
+            ],
+            "title":"Totoken"
+          },
+          "feeToken":{
+            "$ref":"#/components/schemas/TokenQuote"
+          },
+          "amount":{
+            "type":"string",
+            "title":"Amount"
+          },
+          "fromAddress":{
+            "type":"string",
+            "title":"Fromaddress"
+          },
+          "toAddress":{
+            "type":"string",
+            "title":"Toaddress"
+          },
+          "slippage":{
+            "type":"number",
+            "maximum":1.0,
+            "minimum":0.0,
+            "title":"Slippage",
+            "default":0.05
+          },
+          "allowChains":{
+            "items":{
+              "type":"integer"
+            },
+            "type":"array",
+            "uniqueItems":true,
+            "title":"Allowchains",
+            "default":[
+
+            ]
+          },
+          "denyChains":{
+            "items":{
+              "type":"integer"
+            },
+            "type":"array",
+            "uniqueItems":true,
+            "title":"Denychains",
+            "default":[
+
+            ]
+          },
+          "allowSwapProviders":{
+            "type":"string",
+            "title":"Allowswapproviders",
+            "default":""
+          },
+          "allowBridgeProviders":{
+            "type":"string",
+            "title":"Allowbridgeproviders",
+            "default":""
+          }
+        },
+        "type":"object",
+        "required":[
+          "fromToken",
+          "toToken",
+          "feeToken",
+          "amount",
+          "fromAddress",
+          "toAddress"
+        ],
+        "title":"Quote"
+      },
+      "TokenAddressPublic":{
+        "properties":{
+          "address":{
+            "type":"string",
+            "title":"Address"
+          },
+          "chain":{
+            "$ref":"#/components/schemas/ChainPublic"
+          }
+        },
+        "type":"object",
+        "required":[
+          "address",
+          "chain"
+        ],
+        "title":"TokenAddressPublic"
+      },
+      "TokenPublic":{
+        "properties":{
+          "name":{
+            "type":"string",
+            "title":"Name"
+          },
+          "symbol":{
+            "type":"string",
+            "title":"Symbol"
+          },
+          "slug":{
+            "type":"string",
+            "title":"Slug"
+          },
+          "addresses":{
+            "items":{
+              "$ref":"#/components/schemas/TokenAddressPublic"
+            },
+            "type":"array",
+            "title":"Addresses"
+          }
+        },
+        "type":"object",
+        "required":[
+          "name",
+          "symbol",
+          "slug",
+          "addresses"
+        ],
+        "title":"TokenPublic"
+      },
+      "TokenQuote":{
+        "properties":{
+          "chainId":{
+            "type":"integer",
+            "title":"Chainid"
+          },
+          "address":{
+            "type":"string",
+            "title":"Address"
+          }
+        },
+        "type":"object",
+        "required":[
+          "chainId",
+          "address"
+        ],
+        "title":"TokenQuote"
+      },
+      "TokenQuoteBySlug":{
+        "properties":{
+          "slug":{
+            "type":"string",
+            "title":"Slug"
+          }
+        },
+        "type":"object",
+        "required":[
+          "slug"
+        ],
+        "title":"TokenQuoteBySlug"
+      },
+      "ValidationError":{
+        "properties":{
+          "loc":{
+            "items":{
+              "anyOf":[
+                {
+                  "type":"string"
+                },
+                {
+                  "type":"integer"
+                }
+              ]
+            },
+            "type":"array",
+            "title":"Location"
+          },
+          "msg":{
+            "type":"string",
+            "title":"Message"
+          },
+          "type":{
+            "type":"string",
+            "title":"Error Type"
+          }
+        },
+        "type":"object",
+        "required":[
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title":"ValidationError"
       }
     }
   }
