@@ -7,7 +7,7 @@
     "light": "#375D7B",
     "dark": "#375D7B"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/logo/roissingue.svg",
   "navigation": {
     "tabs": [
       {
@@ -40,10 +40,7 @@
       }
     ]
   },
-  "logo": {
-    "light": "/logo/roissingue.png",
-    "dark": "/logo/roissinge.png"
-  },
+  "logo": "/logo/roissingue.svg",
   "navbar": {
     "links": [
       {
@@ -66,9 +63,7 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/roissingue",
-      "github": "https://github.com/roissingue",
-      "linkedin": "https://linkedin.com/company/roissingue"
+      "discord": "https://discord.gg/cFVDgU5wUe"
     }
   }
 }
