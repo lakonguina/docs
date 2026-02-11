@@ -80,26 +80,14 @@ async function main() {
   const result = await execRes.json();
 
   console.log("Supertx Hash:", result.supertxHash);
-  console.log(
-    "MEE Explorer:",
-    `https://meescan.biconomy.io/details/${result.supertxHash}`,
-  );
 }
 
 main().catch(console.error);
 
 ```
 
-## Response
-
-```typescript
-{
-  supertxHash: string;  // Transaction hash
-}
-```
-
-## Track Transaction
+## Track transaction at
 
 ```
-https://meescan.biconomy.io/details/{supertxHash}
+https://api.roissingue.com/v1/status/{supertxHash}
 ```

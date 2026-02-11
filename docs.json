@@ -33,7 +33,8 @@
               "api-reference/endpoint/get-tokens",
               "api-reference/endpoint/get-chains",
               "api-reference/endpoint/post-quote",
-              "api-reference/endpoint/post-execute"
+              "api-reference/endpoint/post-execute",
+              "api-reference/endpoint/get-status"
             ]
           }
         ]
