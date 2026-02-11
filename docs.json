@@ -7,7 +7,7 @@
     "light": "#375D7B",
     "dark": "#375D7B"
   },
-  "favicon": "/logo/roissingue.svg",
+  "favicon": "/logo/logo.png",
   "navigation": {
     "tabs": [
       {
@@ -40,7 +40,7 @@
       }
     ]
   },
-  "logo": "/logo/roissingue.svg",
+  "logo": "/logo/logo.png",
   "navbar": {
     "links": [
       {
